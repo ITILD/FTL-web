@@ -3,8 +3,8 @@ import {
   loadEnv
 } from 'vite'
 import vue from '@vitejs/plugin-vue'
-
-
+import { viteSingleFile } from 'vite-plugin-singlefile'
+// import { minifyHtml } from 'vite-plugin-html'
 // https://vitejs.dev/config/
 
 export default ({
@@ -22,7 +22,11 @@ export default ({
     // base:'./',
     // base:'/vite1_router/dist/',
     base: process.env.VITE_BASE,
-    plugins: [vue()],
+    plugins: [
+      vue(),
+      viteSingleFile(),
+      // minifyHtml()
+    ],
     define: {
       'process.env': process.env
     },
@@ -31,16 +35,18 @@ export default ({
       port: process.env.VITE_PORT,
     },
     build: {
+      target: "esnext",
+      assetsInlineLimit: 100000000,
+      chunkSizeWarningLimit: 100000000,
+      cssCodeSplit: false,
+      brotliSize: false,
       // 拆分块
-      // rollupOptions: {
-      //   output: {
-      //     manualChunks(id) {
-      //       if (id.includes('node_modules')) {
-      //         return id.toString().split('node_modules/')[1].split('/')[0].toString();
-      //       }
-      //     }
-      //   }
-      // }
+      rollupOptions: {
+        inlineDynamicImports: true,
+        output: {
+          manualChunks: () => "everything.js",
+        },
+      }
     }
 
     /* remove the need to specify .vue files https://vitejs.dev/config/#resolve-extensions
