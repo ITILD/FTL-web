@@ -1,0 +1,13 @@
+/* datgui样式 */
+/* 选择框 */
+.dg select{
+  color: rgb(28, 88, 12);
+}
+
+
+.dg input[type=text] {
+  cursor: auto;
+  height: 19px;
+  line-height: 27px;
+  padding: 0 4px 0 5px;
+}
