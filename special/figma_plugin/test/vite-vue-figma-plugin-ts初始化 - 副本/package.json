@@ -2,6 +2,7 @@
   "name": "figma-vite-plugin-tmp1",
   "version": "0.0.0",
   "scripts": {
+    "install_lib":"pnpm install",
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
     "serve": "vite preview"

@@ -1,5 +1,5 @@
 /// <reference types="@figma/plugin-typings" />
-figma.showUI(__html__, { width: 600, height: 800, title: 'My Vue Plugin built with Vite' });
+figma.showUI(__html__, { width: 600, height: 400, title: 'My Vue Plugin built with Vite' });
 
 figma.ui.onmessage = msg => {
   // One way of distinguishing between different types of messages sent from

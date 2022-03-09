@@ -4,7 +4,7 @@ import RectangleCreatorDemo from './components/RectangleCreatorDemo.vue'
 </script>
 
 <template>
-  <img alt="Vue logo" src="./assets/logo.png" />
+  <img width="50px" alt="Vue logo" src="./assets/logo.png" />
   <HelloWorld msg="Hello Vue 3 + TypeScript + Vite" />
   <RectangleCreatorDemo />
 </template>
@@ -17,5 +17,4 @@ import RectangleCreatorDemo from './components/RectangleCreatorDemo.vue'
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
-}
 </style>
