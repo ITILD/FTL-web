@@ -7,6 +7,8 @@ import { viteSingleFile } from 'vite-plugin-singlefile'
 // import { minifyHtml } from 'vite-plugin-html'
 // https://vitejs.dev/config/
 
+// import { createHtmlPlugin } from 'vite-plugin-html'
+
 export default ({
   mode
 }) => {
@@ -25,7 +27,7 @@ export default ({
     plugins: [
       vue(),
       viteSingleFile(),
-      // minifyHtml()
+      // minifyHtml() 
     ],
     define: {
       'process.env': process.env
