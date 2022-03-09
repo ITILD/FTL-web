@@ -1,12 +1,15 @@
 <script setup lang="ts">
+import CesiumGloble from './components/CesiumGloble.vue';
 import HelloWorld from './components/HelloWorld.vue'
 import RectangleCreatorDemo from './components/RectangleCreatorDemo.vue'
+
 </script>
 
 <template>
   <img width="50px" alt="Vue logo" src="./assets/logo.png" />
   <HelloWorld msg="Hello Vue 3 + TypeScript + Vite" />
   <RectangleCreatorDemo />
+  <CesiumGloble />
 </template>
 
 <style>
@@ -17,4 +20,5 @@ import RectangleCreatorDemo from './components/RectangleCreatorDemo.vue'
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
 </style>

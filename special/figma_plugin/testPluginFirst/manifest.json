@@ -1,0 +1,11 @@
+{
+  "name": "testPluginFirst",
+  "id": "1082466486509665879",
+  "api": "1.0.0",
+  "main": "code.js",
+  "editorType": [
+    "figma",
+    "figjam"
+  ],
+  "ui": "ui.html"
+}
