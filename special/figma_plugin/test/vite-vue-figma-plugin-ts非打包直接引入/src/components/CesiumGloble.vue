@@ -16,7 +16,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import * as Cesium from "cesium";
+
 // defineProps<{ msg: string }>()
 // const count = ref(0);
 onMounted(() => {
