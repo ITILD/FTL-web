@@ -1,15 +1,15 @@
 
 
 <template>
-  <div id="cesiumContainer" style="width: 60vw; height: 60vh"></div>
+  <div id="cesiumContainer"></div>
 </template>
 
 
 
 <style scoped>
 #cesiumContainer {
-  width: 20vw;
-  height: 20vh;
+  width: 100vw;
+  height: 100vh;
 }
 </style>
 

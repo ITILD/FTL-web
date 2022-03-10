@@ -1,29 +1,24 @@
 <template>
   <!-- <img width="50px" alt="Vue logo" src="./assets/logo.png" /> -->
   <!-- <HelloWorld msg="Hello Vue 3 + TypeScript + Vite" /> -->
+  <CesiumGloble />
   <RectangleCreatorDemo />
-  测试椭球
-  <CesiumGloble style="z-index:-999" />
+
   <TemplateVue />
-  
+  <SideBar />
 </template>
 
 <script setup lang="ts">
-import TemplateVue from './components/qkui/Template.vue';
+import TemplateVue from "./components/qkui/Template.vue";
+import SideBar from "./components/qkui/SideBar.vue";
 
-
-import CesiumGloble from './components/CesiumGloble.vue'
-import HelloWorld from './components/HelloWorld.vue'
-import RectangleCreatorDemo from './components/RectangleCreatorDemo.vue'
+import CesiumGloble from "./components/CesiumGloble.vue";
+import HelloWorld from "./components/HelloWorld.vue";
+import RectangleCreatorDemo from "./components/RectangleCreatorDemo.vue";
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+body {
+  margin: 0;
 }
 </style>
