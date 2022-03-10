@@ -3,10 +3,15 @@
   <!-- <HelloWorld msg="Hello Vue 3 + TypeScript + Vite" /> -->
   <RectangleCreatorDemo />
   测试椭球
-  <CesiumGloble />
+  <CesiumGloble style="z-index:-999" />
+  <TemplateVue />
+  
 </template>
 
 <script setup lang="ts">
+import TemplateVue from './components/qkui/Template.vue';
+
+
 import CesiumGloble from './components/CesiumGloble.vue'
 import HelloWorld from './components/HelloWorld.vue'
 import RectangleCreatorDemo from './components/RectangleCreatorDemo.vue'
