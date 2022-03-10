@@ -13,20 +13,35 @@ export default defineConfig({
         viteCompression(),
         viteExternalsPlugin({
             cesium: "Cesium",
+            // "ant-design-vue": "antd"
         }),
         htmlPlugin({
             links: [
                 {
                     rel: "stylesheet",
-                    href: "https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/cesium/1.90.0/Widgets/widgets.css",
+                    href: "https://cdn.jsdelivr.net/npm/cesium@1.90.0/Build/Cesium/Widgets/widgets.css",
                 },
             ],
             scripts: [
-                `window['CESIUM_BASE_URL'] = 'https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/cesium/1.90.0/'`,
+                `window['CESIUM_BASE_URL'] = 'https://cdn.jsdelivr.net/npm/cesium@1.90.0/Build/Cesium/'`,
                 {
-                    src: "https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/cesium/1.90.0/Cesium.min.js",
+                    // src: "https://cdn.jsdelivr.net/npm/cesium@1.90.0/Build/Cesium/Cesium.js",
+                    src: "https://cdn.jsdelivr.net/npm/cesium@1.90.0/Build/Cesium/Cesium.min.js",
                 },
             ],
+            // 字节cdn有问题
+            // links: [
+            //     {
+            //         rel: "stylesheet",
+            //         href: "https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/cesium/1.90.0/Widgets/widgets.css",
+            //     },
+            // ],
+            // scripts: [
+            //     `window['CESIUM_BASE_URL'] = 'https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/cesium/1.90.0/'`,
+            //     {
+            //         src: "https://lf3-cdn-tos.bytecdntp.com/cdn/expire-1-M/cesium/1.90.0/Cesium.min.js",
+            //     },
+            // ],
         }),
         viteSingleFile(),
         minifyHtml(),
