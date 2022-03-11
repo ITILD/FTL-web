@@ -54,7 +54,7 @@ class ChangePloygonPrimitive {
         polygonHierarchy: {positions : Cesium.Cartesian3.fromDegreesArrayHeights(positionArray)},
         perPositionHeight: true
       })
-
+// 
       let geometryInstance = new Cesium.GeometryInstance({
         geometry: geometry,
         attributes: { color: Cesium.ColorGeometryInstanceAttribute.fromColor(Cesium.Color.fromRandom({ alpha: 0.6 })) }
