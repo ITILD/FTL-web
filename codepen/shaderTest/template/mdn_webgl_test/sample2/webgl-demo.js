@@ -30,9 +30,23 @@ function main() {
   // Fragment shader program
 
   const fsSource = `
-    void main() {
-      gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+  #ifdef GL_ES
+  precision mediump float;
+  #endif
+  
+  uniform vec2 u_resolution;
+  uniform vec2 u_mouse;
+  uniform float u_time;
+  
+  void main() {
+    vec2 st = gl_FragCoord.xy/u_resolution;
+    gl_FragColor = vec4(st.x,st.y,0.0,1.0);
+    if(gl_FragCoord.x > 300.0) {
+      gl_FragColor.r =1.0;    
+      gl_FragColor.g =0.5;    
+      gl_FragColor.b =1.0;    
     }
+  }
   `;
 
   // Initialize a shader program; this is where all the lighting

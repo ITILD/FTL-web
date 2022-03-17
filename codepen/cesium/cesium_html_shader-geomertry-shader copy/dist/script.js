@@ -27,29 +27,23 @@ class PrimitiveTriangles {
     this.viewer = viewer;
     this.vertexShader = getVS();
     this.fragmentShader = getFS();
-    debugger;
-    console.log(this.viewer.scene.primitives);
-    debugger;
-    //let geometry;
-    //let appearance;
 
-    if (Cartesians && Cartesians.length >= 2) {
-      let postionsTemp = []; //postionsTemp [0x 0y 0z 1x 1y ....]
-      let indicesTesm = []; //indicesTesm []
-      for (let i = 0; i < Cartesians.length; i++) {
-        postionsTemp.push(Cartesians[i].x);
-        postionsTemp.push(Cartesians[i].y);
-        postionsTemp.push(Cartesians[i].z);
-      }
-      for (let i = 0; i < Cartesians.length; i+=3) {
-        indicesTesm.push(i);
-        indicesTesm.push(i + 1);
-        indicesTesm.push(i + 2);
-      }
-      this.positionArr = new Float64Array(postionsTemp);
-      this.colorArr = new Float32Array(Colors);
-      this.indiceArr = new Uint16Array(indicesTesm);
+    let postionsTemp = []; //postionsTemp [0x 0y 0z 1x 1y ....]
+    let indicesTesm = []; //indicesTesm []
+    for (let i = 0; i < Cartesians.length; i++) {
+      postionsTemp.push(Cartesians[i].x);
+      postionsTemp.push(Cartesians[i].y);
+      postionsTemp.push(Cartesians[i].z);
     }
+    for (let i = 0; i < Cartesians.length; i += 3) {
+      indicesTesm.push(i);
+      indicesTesm.push(i + 1);
+      indicesTesm.push(i + 2);
+    }
+    this.positionArr = new Float64Array(postionsTemp);
+    this.colorArr = new Float32Array(Colors);
+    this.indiceArr = new Uint16Array(indicesTesm);
+
 
 
     this.geometry = CreateGeometry(
@@ -211,7 +205,7 @@ function CreateGeometry(positions, colors, indices) {
 
 
     indices: indices,
-    primitiveType: Cesium.PrimitiveType.TRIANGLES,//三角
+    primitiveType: Cesium.PrimitiveType.TRIANGLES, //三角
     boundingSphere: Cesium.BoundingSphere.fromVertices(positions)
   });
 
@@ -298,41 +292,41 @@ cartesian3Positions = Cesium.Cartesian3.fromDegreesArray(positions);
 debugger
 cartesian3Positions = [
   {
-  "x": -2603382.5008735373,
-  "y": 4233193.539858554,
-  "z": 3984483.2325129174
-},
-{
-  "x": -2603379.6854002164,
-  "y": 4233188.837782714,
-  "z": 3984490.0218893816
-},
-{
-  "x": -2603382.401556348,
-  "y": 4233189.703945439,
-  "z": 3984491.9094761834
-},
-// 第二三角形
-{
-  "x": -2603387.07574924,
-  "y": 4233197.3043509,
-  "z": 3984499.1115732444
-},
-{
-  "x": -2603388.2442974625,
-  "y": 4233199.204452264,
-  "z": 3984500.912097509
-},
-{
-  "x": -2603387.5541261146,
-  "y": 4233198.206224008,
-  "z": 3984488.721148249
-},
-// {
-//   "x": -2603388.7226743377,
-//   "y": 4233200.106325375,
-//   "z": 3984490.5216725143
-// },
+    "x": -2603382.5008735373,
+    "y": 4233193.539858554,
+    "z": 3984483.2325129174
+  },
+  {
+    "x": -2603379.6854002164,
+    "y": 4233188.837782714,
+    "z": 3984490.0218893816
+  },
+  {
+    "x": -2603382.401556348,
+    "y": 4233189.703945439,
+    "z": 3984491.9094761834
+  },
+  // 第二三角形
+  {
+    "x": -2603387.07574924,
+    "y": 4233197.3043509,
+    "z": 3984499.1115732444
+  },
+  {
+    "x": -2603388.2442974625,
+    "y": 4233199.204452264,
+    "z": 3984500.912097509
+  },
+  {
+    "x": -2603387.5541261146,
+    "y": 4233198.206224008,
+    "z": 3984488.721148249
+  },
+  // {
+  //   "x": -2603388.7226743377,
+  //   "y": 4233200.106325375,
+  //   "z": 3984490.5216725143
+  // },
 
 
 
