@@ -1,0 +1,369 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <!-- 加载框架 -->
+        <script type="text/javascript" src="jquery-2.1.1.min.js"></script>
+        <link href="colorpicker/css/colorpicker.css" rel="stylesheet" />
+        <script src="colorpicker/colorpicker.js"></script>
+        <script type="text/javascript" src="layui/layui.all.js"></script>
+        <link rel="stylesheet" href="layui/css/layui.css"  media="all">
+        <script type="text/javascript"  type="text/javascript" src="layer3.0/layer.js"></script>
+        
+        <script type="text/javascript" src="Cesium/Cesium.js"></script>
+        <link rel="stylesheet" href="Cesium/Widgets/widgets.css">
+        <script type="text/javascript" src="Windy.js"></script>
+        <!-- 加载自定css、js -->
+        <link rel="stylesheet" href="style.css">
+        <style type="text/css">
+            .body_div{
+                position: absolute;
+                left:0px;
+                top:0px;
+                width: 100%;
+                height:100%;
+            }
+        </style>
+        <script type="text/javascript">
+            $(function(){
+                var viewer = new Cesium.Viewer('mapDiv',{
+                    //组件的隐藏与显示
+                    geocoder:false,
+                    homeButton:false,
+                    sceneModePicker:false,
+                    baseLayerPicker:false,
+                    navigationHelpButton:false,
+                    animation:false,
+                    shouldAnimate:true,
+                    //creditContainer:"credit",
+                    timeline:false,
+                    fullscreenButton:false,
+                    vrButton:false,
+                    terrainProvider:new Cesium.CesiumTerrainProvider({
+                        url: 'http://211.101.24.58:1951/irrlicht/services/samples/c3d_wenchang_terrain/C3DTerrainServer/data'
+                    }),
+                    imageryProvider :  new Cesium.ArcGisMapServerImageryProvider({
+                        // url : 'data/worldimage/{z}/{x}/{y}.png',      //如果为本地相对路径，url为文件夹地址,
+                        url:'http://map.geoq.cn/ArcGIS/rest/services/ChinaOnlineStreetPurplishBlue/MapServer'
+                    })
+                });
+                viewer.scene.debugShowFramesPerSecond = true;
+                viewer.scene.globe.depthTestAgainstTerrain = true;
+                //修改鼠标操作方式（默认鼠标中建旋转，右键zoom，以下方式为：中建zoom，右键旋转）
+                viewer.scene.screenSpaceCameraController.tiltEventTypes = [
+                    Cesium.CameraEventType.RIGHT_DRAG, Cesium.CameraEventType.PINCH,
+                    {eventType: Cesium.CameraEventType.LEFT_DRAG, modifier: Cesium.KeyboardEventModifier.CTRL},
+                    {eventType: Cesium.CameraEventType.RIGHT_DRAG, modifier: Cesium.KeyboardEventModifier.CTRL}
+                ];
+                viewer.scene.screenSpaceCameraController.zoomEventTypes = [
+                    Cesium.CameraEventType.MIDDLE_DRAG, Cesium.CameraEventType.WHEEL, Cesium.CameraEventType.PINCH
+                ];
+                viewer.scene.camera.setView({destination:new Cesium.Cartesian3.fromDegrees(107.515637, 31.105743, 22844209)});
+
+
+
+
+                /**
+                *如果处于全球状态就设置为[]（只要有一个角获取不到坐标就表示全球状态，实时计算）
+                **/
+                var globalExtent = [];
+                var showWindy = function(){
+                    $('#windycanvas').show();
+                };
+                var hideWindy = function(){
+                    $('#windycanvas').hide();
+                };
+                //获取当前三维窗口左上、右上、左下、右下坐标
+                var getCesiumExtent = function(){
+                    var canvaswidth = window.innerWidth,
+                        canvasheight = window.innerHeight-50;
+
+                    var left_top_pt = new Cesium.Cartesian2(0,0);
+                    var left_bottom_pt = new Cesium.Cartesian2(0,canvasheight);
+                    var right_top_pt = new Cesium.Cartesian2(canvaswidth,0);
+                    var right_bottom_pt = new Cesium.Cartesian2(canvaswidth,canvasheight);
+
+                    var pick1= viewer.scene.globe.pick(viewer.camera.getPickRay(left_top_pt), viewer.scene);
+                    var pick2= viewer.scene.globe.pick(viewer.camera.getPickRay(left_bottom_pt), viewer.scene);
+                    var pick3= viewer.scene.globe.pick(viewer.camera.getPickRay(right_top_pt), viewer.scene);
+                    var pick4= viewer.scene.globe.pick(viewer.camera.getPickRay(right_bottom_pt), viewer.scene);
+                    if(pick1 && pick2 && pick3 && pick4){
+                        //将三维坐标转成地理坐标---只需计算左下右上的坐标即可
+                        var geoPt1= viewer.scene.globe.ellipsoid.cartesianToCartographic(pick2);
+                        var geoPt2= viewer.scene.globe.ellipsoid.cartesianToCartographic(pick3);
+                        //地理坐标转换为经纬度坐标
+                        var point1=[geoPt1.longitude / Math.PI * 180,geoPt1.latitude / Math.PI * 180];           
+                        var point2=[geoPt2.longitude / Math.PI * 180,geoPt2.latitude / Math.PI * 180];
+                        // console.log(point1,point2);
+                        //此时说明extent需要分为东西半球
+                        if(point1[0]>point2[0]){
+                            globalExtent = [point1[0],180,point1[1],point2[1],-180,point2[0],point1[1],point2[1]];
+                        }else{
+                            globalExtent = [point1[0],point2[0],point1[1],point2[1]];
+                        }
+                    }else{
+                        globalExtent = [];
+                    }
+                };
+                // 开启监听器--无论对当前地球做的任何操作都会监听到
+                let postRender = viewer.scene.postRender.addEventListener(() => {
+                    getCesiumExtent();
+                });
+                var refreshTimer = -1;
+                var mouse_down = false;
+                var mouse_move = false;
+                var handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+                //鼠标滚动、旋转后是否需要重新生成风场---如果需要，打开以下注释--旋转或者移动到北半球的时候计算会有问题
+                handler.setInputAction(function(e) {
+                    clearTimeout(refreshTimer);
+                    hideWindy();
+                    setTimeout(function(){
+                        windy.extent = globalExtent;
+                        windy.redraw();
+                        showWindy();
+                    },200);
+                },Cesium.ScreenSpaceEventType.WHEEL);
+                //鼠标左键、右键按下
+                handler.setInputAction(function(e) {
+                    mouse_down = true;
+                },Cesium.ScreenSpaceEventType.LEFT_DOWN);
+                handler.setInputAction(function(e) {
+                    mouse_down = true;
+                },Cesium.ScreenSpaceEventType.RIGHT_DOWN);
+                //鼠标移动
+                handler.setInputAction(function(e) {
+                    if(mouse_down){
+                        hideWindy();
+                        mouse_move = true;
+                    }
+                },Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+                //鼠标左键、右键抬起
+                handler.setInputAction(function(e) {
+                    if(mouse_down && mouse_move){
+                        windy.extent = globalExtent;
+                        windy.redraw();
+                    }
+                    showWindy();
+                    mouse_down = false;
+                    mouse_move = false;
+                },Cesium.ScreenSpaceEventType.LEFT_UP);
+                handler.setInputAction(function(e) {
+                    if(mouse_down && mouse_move){
+                        windy.extent = globalExtent;
+                        windy.redraw();
+                    }
+                    showWindy();
+                    mouse_down = false;
+                    mouse_move = false;
+                },Cesium.ScreenSpaceEventType.RIGHT_UP);
+
+                var windy = null,windycanvas=null;
+                var resizeCanvas = function(){
+                    if(windycanvas==null){
+                        return;
+                    }
+                    windycanvas.width=window.innerWidth;
+                    windycanvas.height=window.innerHeight;
+                    console.log(windycanvas.width,windycanvas.height);
+                    if(windy){
+                        windy._resize(windycanvas.width,windycanvas.height);
+                    }
+                };
+                var windycanvas = document.createElement('canvas');
+                windycanvas.setAttribute("id", "windycanvas");
+                windycanvas.style.position='fixed'
+                windycanvas.style["pointer-events"]="none";
+                windycanvas.style["z-index"]=10;
+                windycanvas.style["top"]=0;
+                document.getElementById('body_div').appendChild(windycanvas);
+                $.ajax({
+                    type: "get",
+                    url: "data.json",
+                    dataType: "json",
+                    success: function (response) {
+                        resizeCanvas();
+                        window.onresize=resizeCanvas;
+                        //风场的参数配置，除了canvas/viewer是必传项，其他可以不传，参数含义见windy.js
+                        var params = {
+                            viewer:viewer,
+                            canvas:windycanvas,
+                            canvasWidth:window.innerWidth,
+                            canvasHeight:window.innerHeight,
+                            speedRate:5000,
+                            particlesNumber:10000,
+                            maxAge:120,
+                            frameRate:10,
+                            color:'#ffffff',
+                            lineWidth:1,
+                        };
+                        windy = new CanvasWindy(response, params);
+                    },
+                    error: function (errorMsg) {
+                        console.log("请求数据失败!");
+                    }
+                });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                // 参数面板
+                var canrefresh = -1,canrefresh2 = -1;//拖动粒子个数和存活时间滑块时，不能随时刷新，需要隔一段时间刷新，避免卡顿
+                layui.use('slider', function(){
+                    var slider = layui.slider;
+                    slider.render({
+                        elem: '#windy_count',
+                        min:100,
+                        max:100000,
+                        value:10000,
+                        tips:false,
+                        input:true,
+                        theme:'#3b86ca',
+                        change: function(value){
+                            if(windy){
+                                clearTimeout(canrefresh);
+                                windy.particlesNumber = value;
+                                canrefresh = setTimeout(function(){
+                                    windy.redraw();
+                                },500);
+                            }
+                        }
+                    });
+                });
+                layui.use('slider', function(){
+                    var slider = layui.slider;
+                    slider.render({
+                        elem: '#windy_linewidth',
+                        min:1,
+                        max:10,
+                        value:1,
+                        tips:false,
+                        input:true,
+                        theme:'#3b86ca',
+                        change: function(value){
+                            if(windy){
+                                windy.lineWidth = value;
+                            }
+                        }
+                    });
+                });
+                layui.use('slider', function(){
+                    var slider = layui.slider;
+                    slider.render({
+                        elem: '#windy_speed',
+                        min:1,
+                        max:100,
+                        value:50,
+                        tips:false,
+                        input:true,
+                        theme:'#3b86ca',
+                        change: function(value){
+                            if(windy){
+                                windy.speedRate = (100-(value>99?99:value))*100;
+                                windy._calcStep();
+                            }
+                        }
+                    });
+                });
+                layui.use('slider', function(){
+                    var slider = layui.slider;
+                    slider.render({
+                        elem: '#windy_age',
+                        min:10,
+                        max:500,
+                        value:120,
+                        tips:false,
+                        input:true,
+                        theme:'#3b86ca',
+                        change: function(value){
+                            if(windy){
+                                clearTimeout(canrefresh2);
+                                windy.maxAge = value;
+                                canrefresh2 = setTimeout(function(){
+                                    windy.redraw();
+                                },500);
+                            }
+                        }
+                    });
+                });
+                // 颜色选择插件初始化
+                $('.windycanvas_picker').each(function(inx,dom){
+                    $(dom).ColorPicker({
+                        color: $(dom).val(),
+                        pickerDom:$(dom),
+                        pickerDomInx:0,
+                        onShow: function (colpkr) {
+                            $(colpkr).fadeIn(300);
+                            return false;
+                        },
+                        onHide: function (colpkr) {
+                            $(colpkr).fadeOut(300);
+                            return false;
+                        },
+                        //onchange方法改过，pickerdom,inx是新增的属性
+                        //pickerdom：当前点击节点，inx就是pickerDomInx属性，跟for循环中i相同，用来更新颜色之后同步修改颜色数组
+                        onChange: function (hsb, hex, rgb,pickerdom,inx) {
+                            var colorvl = '#' + hex;
+                            $(pickerdom).val(colorvl);
+                            $(pickerdom).next().css({ "background-color":  colorvl});
+                            if(windy){
+                                windy.color = colorvl;
+                            }
+                        }
+                    });
+                });
+            });
+        </script>
+
+    </head>
+
+    <body style="overflow:hidden">
+        <div id='body_div' class='body_div'>
+            <div id='mapDiv'></div>
+        </div>
+
+        <div class='windycanvas_list'>
+            <div class='windycanvas_row'>
+                <div class='name'>粒子个数：</div>
+                <div class='slidercont'>
+                    <div id='windy_count' class='sliderbaritem'></div>
+                </div>
+            </div>
+            <div class='windycanvas_row'>
+                <div class='name'>线宽度：</div>
+                <div class='slidercont'>
+                    <div id='windy_linewidth' class='sliderbaritem'></div>
+                </div>
+            </div>
+            <div class='windycanvas_row'>
+                <div class='name'>移动速率：</div>
+                <div class='slidercont'>
+                    <div id='windy_speed' class='sliderbaritem'></div>
+                </div>
+            </div>
+            <div class='windycanvas_row'>
+                <div class='name'>存活时间：</div>
+                <div class='slidercont'>
+                    <div id='windy_age' class='sliderbaritem'></div>
+                </div>
+            </div>
+            <div class='windycanvas_row'>
+                <div class='windycanvas_formcont'>
+                    <span class='windycanvas_span'>颜色：</span>
+                    <input id="point_color" value="#ebb14c" class="windycanvas_formitem windycanvas_picker" readonly>
+                    <div class='windycanvas_colorpanelbg' style='background-color:#ebb14c'></div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

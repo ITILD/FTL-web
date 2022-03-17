@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>webgl example</title>
+    <link rel="stylesheet" href="../css/common.css">
+</head>
+
+<body>
+    <canvas id="webgl" width="512" height="512"></canvas>
+</body>
+<script src="../lib/webgl-utils.js"></script>
+<script src="../lib/webgl-debug.js"></script>
+<script src="../lib/cuon-utils.js"></script>
+<script src="../lib/cuon-matrix.js"></script>
+
+<script>
+
+    // 顶点着色器
+    var v_shader_source = '' +
+        'attribute vec4 a_Position;' +
+        'attribute vec4 a_Color;' +
+        'uniform mat4 u_ViewMatrix;' +
+        'uniform mat4 u_ProjMatrix;' +
+        'varying vec4 v_Color;' +
+        'void main(){' +
+        '   gl_Position = u_ProjMatrix * u_ViewMatrix * a_Position;' +
+        '   v_Color = a_Color;' +
+        '}';
+    // 片元着色器
+    var f_shader_source = '' +
+        'precision mediump float;' +
+        'varying vec4 v_Color;' +
+        'void main(){' +
+        '   gl_FragColor = v_Color;' +
+        '}';
+
+
+    (function () {
+
+        var canvas = document.getElementById('webgl');
+
+        var gl = getWebGLContext(canvas);
+
+        if (!gl) {
+
+            console.log('不能获取webgl 上下文');
+            return false;
+
+        }
+
+        // 初始化渲染器
+        if (!initShaders(gl, v_shader_source, f_shader_source)) {
+
+            console.log('初始化渲染器失败');
+            return false;
+
+        }
+
+        // 设置顶点位置
+        var n = initVertexBuffers(gl);
+        if (n < 0) {
+
+            console.log('初始化顶点信息失败');
+            return false;
+
+        }
+
+        // 设置清楚颜色
+        gl.clearColor(0.0, 0.5, 0.5, 1.0);
+
+        // 开启混合
+        gl.enable(gl.BLEND);
+
+        // 设置混合函数
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
+
+        // 获取视图矩阵存储位置
+        var u_ViewMatrix = gl.getUniformLocation(gl.program, 'u_ViewMatrix');
+        var u_ProjMatrix = gl.getUniformLocation(gl.program, 'u_ProjMatrix');
+        if (!u_ViewMatrix && u_ProjMatrix) {
+
+            console.log('获取视图存储位置或者正射投影矩阵失败');
+            return false;
+
+        }
+
+        // 设置摄像机视点的矩阵
+        var viewMatrix = new Matrix4();
+
+        var projMatrix = new Matrix4();
+
+        // 设置正射投影可是区域
+        projMatrix.setOrtho(-1.0, 1.0, -1.0, 1.0, 0.0, 10.0);
+        gl.uniformMatrix4fv(u_ProjMatrix, false, projMatrix.elements);
+
+        document.onkeydown = function (ev) { keydown(ev, gl, n, u_ViewMatrix, viewMatrix) };
+
+
+        var g_eyeX = 0.20, g_eyeY = 0.25, g_eyeZ = 0.25;
+
+        draw(gl, n, u_ViewMatrix, viewMatrix);
+
+        function keydown(ev, gl, n, u_ViewMatrix, viewMatrix) {
+
+
+            if (ev.keyCode == 39) {
+                g_eyeX += 0.02;
+            } else if (ev.keyCode == 37) {
+                g_eyeX -= 0.02;
+            }
+
+            draw(gl, n, u_ViewMatrix, viewMatrix);
+
+        }
+
+        function draw(gl, n, u_ViewMatrix, viewMatrix) {
+
+            viewMatrix.setLookAt(g_eyeX, g_eyeY, g_eyeZ, 0, 0, 0, 0, 1, 0);
+            gl.uniformMatrix4fv(u_ViewMatrix, false, viewMatrix.elements);
+
+            // 清空canvas
+            gl.clear(gl.COLOR_BUFFER_BIT);
+
+            // 绘制三角形
+            gl.drawArrays(gl.TRIANGLES, 0, n);
+
+        }
+
+
+        function initVertexBuffers(gl) {
+
+            var verticesColors = new Float32Array([
+                0.0, 0.5, -0.4, 0.4, 1.0, 0.4, // The back green one
+                -0.5, -0.5, -0.4, 0.4, 1.0, 0.4,
+                0.5, -0.5, -0.4, 1.0, 0.4, 0.4,
+
+                0.5, 0.4, -0.2, 1.0, 0.4, 0.4, // The middle yellow one
+                -0.5, 0.4, -0.2, 1.0, 1.0, 0.4,
+                0.0, -0.6, -0.2, 1.0, 1.0, 0.4,
+
+                0.0, 0.5, 0.0, 0.4, 0.4, 1.0,  // The front blue one
+                -0.5, -0.5, 0.0, 0.4, 0.4, 1.0,
+                0.5, -0.5, 0.0, 1.0, 0.4, 0.4,
+            ]);
+            var n = 9;
+
+            // 创建颜色缓冲区
+            var vertexColorBuffer = gl.createBuffer();
+            if (!vertexColorBuffer) {
+
+                console.log('创建颜色缓冲区失败');
+                return -1;
+
+            }
+
+            gl.bindBuffer(gl.ARRAY_BUFFER, vertexColorBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, verticesColors, gl.STATIC_DRAW);
+
+            var FSIZE = verticesColors.BYTES_PER_ELEMENT;
+
+            var a_Position = gl.getAttribLocation(gl.program, 'a_Position');
+            if (a_Position < 0) {
+
+                console.log('获取 attribute 变量失败');
+                return -1;
+
+            }
+
+            gl.vertexAttribPointer(a_Position, 3, gl.FLOAT, false, FSIZE * 6, 0);
+            gl.enableVertexAttribArray(a_Position);
+
+            var a_Color = gl.getAttribLocation(gl.program, 'a_Color');
+            if (a_Color < 0) {
+                console.log('Failed to get the storage location of a_Color');
+                return -1;
+            }
+            gl.vertexAttribPointer(a_Color, 3, gl.FLOAT, false, FSIZE * 6, FSIZE * 3);
+            gl.enableVertexAttribArray(a_Color);
+
+            // Unbind the buffer object
+            gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+            return n;
+
+        }
+
+    }())
+
+
+</script>
+
+</html>

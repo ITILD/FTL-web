@@ -1,0 +1,69 @@
+<!-- ~~~ 纯原生实现简单首页，以便在各种平台和极端情况下快速加载运行，常年维护html5 webgl webgpu三版本首页练手 ~~~ -->
+
+<!-- CSS1Compat：标准模式，浏览器使用W3C的标准解析渲染页面。  -->
+<!DOCTYPE html>
+<html>
+<!-- 多套cdn -->
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8" content="biubiulight" />
+  <title>GeoSlef</title>
+  <link rel="shortcut icon" href="/visions.png" type="image/x-icon" />
+  <!-- icon TODO -->
+  <link rel="stylesheet" styl="text/css" href="index.css">
+  <!-- <script src=""></script> -->
+</head>
+
+<script type="module">
+  window.test = 0
+  /*网站首页公有配置文件_服务器代理路径/项目列表*/
+  import * as indexConfig from "./indexConfig.js";//import {serverLibsource} from "./indexConfig.js"
+  import { indexHtml } from "./index.js";//import {serverLibsource} from "./indexConfig.js"
+  indexHtml(indexConfig);
+</script>
+
+<body>
+  <!-- 页首 -->
+  <div class="up">
+    <!-- 图标 ps设计一下 -->
+    <div class="index-logo">
+      <a class="index-logo-url" href="/" id="flashlight">
+        <span id="flash">GEOSELF</span>
+        <span id="light">GITHUB.IO</span>
+      </a>
+    </div>
+    <!-- 搜索框 -->
+    <div class="index-search">
+      <input class="placeholder" id="s" name="s" placeholder="搜索……" autocomplete="off">
+    </div>
+  </div>
+
+  <!-- 内容 -->
+  <div class="middle">
+    <!-- 快速导航栏 -->
+    <div class="projectTabQuickMap-navigation"></div>
+    <!-- 侧边内部导航栏 -->
+    <div class="projectGroupListQuick-navigation"></div>
+    <!-- 内容导航块 -->
+    <div class="projectGroupList-navigation">
+      <!-- 侧边导航栏关联 -->
+      <!-- 内容导航   1行 小图标 名字 2行 一句话简介 2行角标 下拉  官网链接  官网doc  github源码地址-->
+
+    </div>
+  </div>
+  <!-- 页尾 -->
+  <div class="down">
+    <div>biubiulight</div>
+  </div>
+
+  <!-- <div>切换原始webgl和webgpu版本</div>
+  <div>切换原始webgpu版本</div>
+
+
+  <script>
+
+  </script>
+</body>
+
+</html>

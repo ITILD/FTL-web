@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>webgl-example</title>
+    <link rel="stylesheet" href="../css/common.css">
+</head>
+
+<body>
+    <canvas id="webgl" width="512" height="512"></canvas>
+</body>
+<script src="../lib/webgl-utils.js"></script>
+<script src="../lib/webgl-debug.js"></script>
+<script src="../lib/cuon-utils.js"></script>
+<script src="../lib/cuon-matrix.js"></script>
+<script src=""></script>
+
+<script>
+
+    // 顶点着色器
+    var v_shader_source = '' +
+        'attribute vec4 a_Position;' +
+        'void main(){' +
+        '   gl_Position = a_Position;' +
+        '   gl_PointSize = 10.0;' +
+        '}'
+    // 片元着色器
+    var f_shader_source = '' +
+        'precision mediump float;' +
+        'void main(){' +
+        // 点的中心坐标是 （0.5， 0.5）
+        '   float dist = distance(gl_PointCoord, vec2(0.5, 0.5));' +
+        '   if(dist < 0.5){' + //点的半径是 0.5
+        '       gl_FragColor = vec4(1.0, 1.0, 0.0, 1.0);' +
+        '   }else{' +
+        '       discard;' +
+        '   }' +
+        '}'
+
+    // 获取当前角度
+    var ANGLE_STEP = 30.0; // 旋转角度
+    var g_last = Date.now(); // 方法最后被调用的时间
+
+    function getCurrentAngle(angle) {
+
+        var now = Date.now();
+        var elapsed = now - g_last;
+        g_last = now;
+
+        var newAngle = angle + (ANGLE_STEP * elapsed) / 1000.0;
+
+        return newAngle %= 360;
+
+    }
+
+
+    (function () {
+
+        var canvas = document.getElementById('webgl');
+
+        var gl = getWebGLContext(canvas);
+
+        if (!gl) {
+
+            console.log('不能获取webgl 上下文');
+            return false;
+
+        }
+
+        // 初始化渲染器
+        if (!initShaders(gl, v_shader_source, f_shader_source)) {
+
+            console.log('初始化着色器失败');
+            return false;
+
+        }
+
+        // 设置顶点位置
+        var n = initVertexBuffers(gl);
+        if (n < 0) {
+
+            console.log('初始化顶点信息失败');
+            return false;
+
+        }
+
+        // 设置清楚颜色
+        gl.clearColor(0.0, 0.5, 0.5, 1.0);
+
+        // 开启深度检测
+        gl.enable(gl.DEPTH_TEST);
+
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+        gl.drawArrays(gl.POINTS, 0, n);
+
+
+        function initVertexBuffers(gl) {
+
+            var vertices = new Float32Array([
+                0, 0.5, -0.5, -0.5, 0.5, -0.5
+            ]);
+            var n = 3;
+
+            // 创建缓冲区对象
+            var vertexBuffer = gl.createBuffer();
+            if (!vertexBuffer) {
+                console.log('创建缓冲区对象失败');
+                return -1;
+            }
+            // 绑定缓冲区对象
+            gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+
+            // 将数据写入缓冲区对象
+            gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+
+            // 获取attribute 变量的存储地址
+            var a_Position = gl.getAttribLocation(gl.program, 'a_Position');
+            if (a_Position < 0) {
+                console.log('获取变量存储位置失败');
+                return -1;
+            }
+
+            gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 0, 0);
+
+            // 写入数据到缓冲区
+            gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+            // 启用缓冲区属性变量
+            gl.enableVertexAttribArray(a_Position);
+
+            return n;
+
+        }
+
+    }())
+
+
+</script>
+
+</html>

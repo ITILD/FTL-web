@@ -1,0 +1,38 @@
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.displayList {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.display {
+  width: 50%;
+  height: 50%;
+  /* border: 0.1rem solid rgba(0, 0, 0, 0.418); */
+  box-shadow: inset 0px 0px 0px 1px rgba(0, 0, 0, 0.267);
+  /* float: left; */
+  /* touch-action: none; */
+  background-color: rgba(128, 128, 128, 0.171);
+}
+
+
+/* #cesiumContainer0 {} */
+
+#control {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+.btnClick{
+  pointer-events: auto
+}

@@ -1,0 +1,23 @@
+{
+  "asset": {
+    "version": "1.0"
+  },
+  "geometricError": 0.326660,
+  "root": {
+    "boundingVolume": {
+      "region": [
+        2.122152,
+        0.679683,
+        2.122152,
+        0.679683,
+        6.398888,
+        6.725367
+      ]
+    },
+    "geometricError": 0.001953,
+    "refine": "REPLACE",
+    "content": {
+      "uri": "test9798.cmpt"
+    }
+  }
+}

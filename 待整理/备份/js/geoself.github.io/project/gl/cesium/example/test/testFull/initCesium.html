@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"
+    />
+    <title>initCesium</title>
+    <script src="https://cdn.jsdelivr.net/npm/cesium@1.80.0/Build/Cesium/Cesium.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/cesium@1.80.0/Build/Cesium/Widgets/widgets.css"
+      rel="stylesheet"
+    />
+    <!-- work -->
+    <link href="cesiumStart.css" rel="stylesheet" />
+  </head>
+
+  <body>
+    <div id="cesiumContainer"></div>
+
+    <!--------------------------------------------------- 外部js库 --------------------------------------------------->
+    <!-- indexdb -->
+    <script src="./plugin/localforage.min.js"></script>
+
+    <!--------------------------------------------------- 二三维地图统一测试 --------------------------------------------------->
+    <!-- 初始化 -->
+    <script src="cesiumStart.js"></script>
+    <!-- data加载  dao service-->
+    <script src="./testFullList/CesiumDataControlUtil.js"></script>
+    <script src="./testFullList/addDataService.js"></script>
+
+    <button
+      class="testBtn"
+      style="z-index: 999999; position: absolute; left: 10px; top: 10px"
+      onclick="add3Dtiles()"
+    >
+      add3Dtiles
+    </button>
+    <!-- 预加载 -->
+    <script src="./testFullList/preLoadFull.js"></script>
+    <script src="./testFullList/preLoadListen.js"></script>
+    <button
+      id="preLoadListen"
+      class="testBtn"
+      style="z-index: 999999; position: absolute; left: 10px; top: 30px"
+      onclick="preLoadListen()"
+    >
+      preLoadListen
+    </button>
+    <button
+      id="preLoadListen0"
+      class="testBtn"
+      style="z-index: 999999; position: absolute; left: 10px; top: 50px"
+      onclick="preLoadListen0()"
+    >
+      preLoadListen0
+    </button>
+  </body>
+</html>

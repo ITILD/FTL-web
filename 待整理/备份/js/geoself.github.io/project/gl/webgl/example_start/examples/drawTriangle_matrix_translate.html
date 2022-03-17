@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <canvas id="canvasgl" width="800" height="600">
+        your browser don't support webgl
+    </canvas>
+    
+    <script src="../lib/webgl-utils.js"></script>
+    <script src="../lib/webgl-debug.js"></script>
+    <script src="../lib/cuon-utils.js"></script>
+
+    <script>
+      var VSHADER_SOURCE = `
+              attribute vec4 a_Position;
+              uniform mat4 u_xformMatrix;
+
+              void main(){
+                  gl_Position = u_xformMatrix * a_Position;
+              }
+          `;
+
+      var FSHADER_SOURCE = `
+              void main(){
+                  gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+              }
+          `;
+
+      var canvas = document.getElementById("canvasgl");
+      var gl = getWebGLContext(canvas);
+      if (!gl) throw new Error("can't get webgl context");
+
+      if (!initShaders(gl, VSHADER_SOURCE, FSHADER_SOURCE)) {
+        throw new Error("can't init shaders");
+      }
+
+      var n = initVertextBuffers(gl);
+      if (n < 0) throw new Error("failed set positions of vertices");
+
+      let Tx = 0.2, Ty = 0.2, Tz = 0.0;
+    //   let Tx = 0.0, Ty = 0.0, Tz = 0.0;
+      var xformMatrix = new Float32Array([
+          1.0, 0.0, 0.0, 0.0,
+          0.0, 1.0, 0.0, 0.0,
+          0.0, 0.0, 1.0, 0.0,
+          Tx, Ty, Tz, 1.0
+      ]);
+      var u_xformMatrix = gl.getUniformLocation(gl.program, "u_xformMatrix");
+      gl.uniformMatrix4fv(u_xformMatrix, false, xformMatrix);
+
+      gl.clearColor(0.0, 0.0, 0.0, 1.0);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.drawArrays(gl.TRIANGLES, 0, n);
+
+      function initVertextBuffers(gl) {
+        var vertices = new Float32Array([0.0, 0.5, 0.5, 0.5, 0, 0]);
+        var n = 3;
+
+        var vertexBuffer = gl.createBuffer();
+        if (!vertexBuffer) throw new Error("can't init vertext buffet");
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+
+        var a_Position = gl.getAttribLocation(gl.program, "a_Position");
+        gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(a_Position);
+        return n;
+      }
+    </script>
+</body>
+</html>

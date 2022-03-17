@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>旋转动画基础</title>
+    <link rel="stylesheet" href="../css/common.css">
+</head>
+<body>
+<canvas id="webgl" width="512" height="512"></canvas>
+</body>
+<script src="../lib/webgl-utils.js"></script>
+<script src="../lib/webgl-debug.js"></script>
+<script src="../lib/cuon-utils.js"></script>
+<script src="../lib/cuon-matrix.js"></script>
+<input type="button" value="up" id="up">
+<input type="button" value="down" id="down">
+
+<script>
+
+    // 顶点着色器
+    var vertex_shader_source = '' +
+        'attribute vec4 a_Position;' +
+        'uniform mat4 u_ModelMatrix;' +
+        'void main() {' +
+        '   gl_Position = u_ModelMatrix * a_Position;' +
+        '}';
+
+    // 片元着色器
+    var fragment_shader_source = '' +
+        'void main(){' +
+        '   gl_FragColor = vec4(0.5, 0.0, 0.5, 1.0);' +
+        '}';
+
+    (function () {
+
+        // 获取canvas对象
+        var canvas = document.getElementById('webgl');
+
+        // 获取webgl 上下文对象
+        var gl = getWebGLContext(canvas);
+
+        // 初始化着色器
+        if (!initShaders(gl, vertex_shader_source, fragment_shader_source)) {
+            console.log('初始化着色器失败！');
+            return false;
+        }
+
+        // 设置顶点位置
+        var n = initVertexBuffer(gl);
+        if (n < 0) {
+            console.log('顶点写入缓存失败！');
+            return false;
+        }
+
+        // 设置清空颜色
+        gl.clearColor(0.0, 0.5, 0.5, 1.0);
+
+        // 旋转角度
+        var ANGLE_STEP = 45.0;
+
+        // 当前旋转角度
+        var currentAngle = 0.0;
+
+        // 创建旋转矩阵对象
+        var modelMatrix = new Matrix4();
+
+        // 通过旋转矩阵传递给顶点着色器
+        var u_ModelMatrix = gl.getUniformLocation(gl.program, 'u_ModelMatrix');
+        if (!u_ModelMatrix) {
+            console.log('获取uniform变量失败！');
+            return false;
+        }
+
+        var g_last = Date.now();
+
+        // 开始绘制
+        var tick = function () {
+
+            // 更新旋转角度
+            currentAngle = animate(currentAngle);
+            draw(gl, n, currentAngle, modelMatrix, u_ModelMatrix);
+            requestAnimationFrame(tick);
+        };
+
+        tick();
+
+        function animate(angle){
+
+            // 计算运行时间
+            var now = Date.now();
+
+            // 过去时间
+            var elapsed = now - g_last;
+            g_last = now;
+
+            // 更新当前旋转角度，依据时间进行调整
+            var newAngle = angle + (ANGLE_STEP * elapsed) / 1000.0;
+
+            // 返回新角度
+            return newAngle %= 360;
+
+        }
+
+        function draw(gl, n, currentAngle, modelMatrix, u_ModelMatrix){
+
+            // 设置旋转矩阵
+            modelMatrix.setRotate(currentAngle, 0, 0, 1);
+            modelMatrix.translate(0.5, 0.5, 0);
+
+            gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+
+            gl.clear(gl.COLOR_BUFFER_BIT);
+
+            gl.drawArrays(gl.TRIANGLES, 0, n);
+
+        }
+
+        // 将顶点信息写入缓存区
+        function initVertexBuffer(gl) {
+
+            var vertices = new Float32Array([
+                0.0, 0.25, 0.25, -0.25, -0.25, -0.25
+            ]);
+
+            var n = vertices.length / 2;
+
+            // 创建缓冲区对象
+            var vertexBuffer = gl.createBuffer();
+            if (!vertexBuffer) {
+                console.log('创建缓冲区对象失败！');
+                return -1;
+            }
+
+            // 绑定缓冲区对象到目标
+            gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+
+            // 将数据写入到缓冲区对象
+            gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+
+            var a_Position = gl.getAttribLocation(gl.program, 'a_Position');
+            if (a_Position < 0) {
+                console.log('获取attribute变量失败！');
+                return -1;
+            }
+
+            // 将缓冲区对象分配给attribute变量
+            gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 0, 0);
+
+            // 开启attribute变量
+            gl.enableVertexAttribArray(a_Position);
+
+            return n;
+
+        }
+
+
+        document.getElementById('up').onclick = function (ev) {
+            ANGLE_STEP += 10;
+        };
+        document.getElementById('down').onclick = function (ev) {
+            ANGLE_STEP -= 10;
+        };
+
+    }());
+
+</script>
+</html>

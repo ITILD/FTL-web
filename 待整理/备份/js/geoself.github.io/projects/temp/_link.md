@@ -1,0 +1,28 @@
+# GISAlgorithm
+
+GIS 算法库
+
+- [Liang-Barsky 线裁剪算法](https://github.com/w8r/liang-barsky)
+- [寻路算法](https://github.com/anvaka/ngraph.path)
+- [流线算法](https://github.com/anvaka/streamlines)
+- [几何数据处理（联合、相交等）](https://github.com/mapbox/wagyu)
+- [3D 几何网格数据压缩与解压](https://github.com/google/draco)
+- [自动拟合数字化曲线算法](https://github.com/soswow/fit-curve)
+- [2D 矩形空间索引的快速建立](https://github.com/mourner/flatbush)
+- [地理坐标库，支持坐标系的相互转换(WGS84，GCJ02，BD09 等)，支持 GeoJSON](https://github.com/hujiulong/gcoord)
+- [proj4js 地理坐标转换库](https://github.com/proj4js/proj4js)
+- [基于 Kodituwakka, Wijeweera & Chamikara 算法的线裁剪](https://github.com/rowanwins/kwc-lineclip)
+- [polygon-offset：多边形缓冲区](https://github.com/w8r/polygon-offset)
+- [Martinez-Rueda 多边形裁剪算法，支持联合、相交、差集等](https://github.com/w8r/martinez)
+- [多边形布尔运算](https://github.com/voidqk/polybooljs)
+- [地理空间点聚合](https://github.com/mapbox/supercluster)
+- [polylabel：查找多边形内距离轮廓最远处的内部点，用于文本标注等](https://github.com/mapbox/polylabel)
+- [rbush：一个高性能的基于 JavaScript 的 R 树的二维空间索引，用于点和矩形](https://github.com/mourner/rbush)
+- [Geometry Extrude: 一个小而快速的 JavaScript 库，用于将 2D 多边形和折线挤压成 3D 网格](https://github.com/pissang/geometry-extrude)
+- [random-volume-points：在给定几何体内生成随机 3d 点](https://github.com/nicknikolov/random-volume-points)
+- [spline-points：将 3d 路径细分为样条点](https://github.com/vorg/spline-points)
+- [获取二维折线的斜接法线，这对于在 GPU 的顶点着色器中展开粗线很有用](https://github.com/mattdesl/polyline-normals)
+- [用于通过普通克里金法进行地理空间预测和映射的 Javascript 库](https://github.com/oeo4b/kriging.js)
+- [计算给定有效 geojson 对象的范围/ bbox](https://github.com/geosquare/geojson-bbox)
+- [将布尔多边形裁剪操作应用于 Polygons 和 MultiPolygons](https://github.com/mfogel/polygon-clipping)
+- [检测点是否在多边形内](https://github.com/mikolalysenko/robust-point-in-polygon)

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Cesium Ground-push Demo</title>
+
+    <link rel="stylesheet" href="./example.css" />
+    <script src="https://cdn.jsdelivr.net/npm/cesium@1.80.0/Build/Cesium/Cesium.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/cesium@1.80.0/Build/Cesium/Widgets/widgets.css"
+      rel="stylesheet"
+    />
+    <script
+      type="text/javascript"
+      src="./GroundPushGlobeSurfaceShaderSet.js"
+    ></script>
+    <script type="text/javascript" src="./GroundPushGlobeVS.js"></script>
+    <script type="text/javascript" src="./GroundPushGlobeFS.js"></script>
+    <script type="text/javascript" src="./GroundPush.js"></script>
+  </head>
+  <body>
+    <div id="cesiumContainer" class="fullWindow"></div>
+    <script type="text/javascript">
+      class InitViewer {
+        /**
+         *
+         * @param {*} defaultAccessToken 外网cesium ion 密钥
+         */
+        constructor(defaultAccessToken) {
+          this.viewers = new Map()
+          Cesium.Ion.defaultAccessToken =
+            defaultAccessToken ||
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2MTRiM2IxYy1iZGZkLTRmOTktYWVhMi0xZTE2ZjU4NzliMDMiLCJpZCI6Mzc0NjAsImlhdCI6MTYwNTA3NzQ1MX0.GEvT_KwEV9MjAqyXHyS-ezcITyKc53X3MQDWBLPElI0'
+        }
+
+        static getInstance() {
+          if (!this.Instance) {
+            this.Instance = new InitViewer()
+          }
+          return this.Instance
+        }
+
+        addViewer(viewerId) {
+          let viewer = new Cesium.Viewer(viewerId, {
+            /**
+             * 小部件
+             */
+            //true	如果设置为false，将不创建“动画”窗口小部件。
+            animation: false,
+            //true 	如果设置为false，则不会创建BaseLayerPicker窗口小部件。
+            baseLayerPicker: !false,
+            //true 	如果设置为false，将不会创建FullscreenButton小部件。
+            fullscreenButton: !false,
+            //false 	如果设置为true，将创建VRButton小部件。
+            vrButton: false,
+            //true 	如果设置为false，则不会创建Geocoder小部件。 地理编码查询
+            //布尔 | Array。< GeocoderService > 	<可选>
+            geocoder: false,
+            //true 	如果设置为false，将不会创建HomeButton小部件。
+            homeButton: false,
+            //true 	如果设置为false，则不会创建InfoBox小部件。
+            infoBox: false,
+            //true 	如果设置为false，将不会创建SceneModePicker小部件。
+            sceneModePicker: false,
+            //true 	如果设置为false，将不会创建SelectionIndicator小部件。
+            selectionIndicator: false,
+            //true 	如果设置为false，则不会创建“时间轴”窗口小部件。
+            timeline: false,
+            //true 	如果设置为false，将不会创建导航帮助按钮。
+            navigationHelpButton: false,
+            //true 	如果导航说明最初应该是可见的，则为true；如果直到用户明确单击该按钮才显示，则为false。
+            navigationInstructionsInitiallyVisible: false,
+          })
+          viewer.imageryLayers.removeAll()
+          this.viewers.set(viewerId, viewer)
+
+          return viewer
+        }
+      }
+
+      var lat = -33.86 // Sydney
+      var lon = 151.21
+      var width = 1.0
+
+      var pushRectangle = new Cesium.Rectangle(
+        Cesium.Math.toRadians(lon - width),
+        Cesium.Math.toRadians(lat - width),
+        Cesium.Math.toRadians(lon + width),
+        Cesium.Math.toRadians(lat + width)
+      )
+
+      var pushDepth = -50000
+
+      options = {
+        pushRectangle: pushRectangle,
+        pushDepth: pushDepth,
+        pushSidesTint: new Cesium.Cartesian3(0.7, 0.6, 0.5),
+      }
+
+      // Initialise the ground push.
+      //   var gp = new GroundPush(Cesium, options)
+
+      //   var viewer = new Cesium.viewer('cesiumContainer')
+
+      let initViewer = InitViewer.getInstance()
+      window.initViewer = initViewer
+      window.viewer = initViewer.addViewer('cesiumContainer')
+      // 初始viewer
+      let viewer = initViewer.viewers.get('cesiumContainer')
+
+      //   let provider = Cesium.createWorldImagery({
+      //     style: Cesium.IonWorldImageryStyle.AERIAL,
+      //   })
+
+      //   viewer.imageryLayers.addImageryProvider(provider);
+
+      var globe = viewer.scene.globe
+
+      // Set the camera to view the push rectangle.
+      //   viewer.scene.camera.viewRectangle(pushRectangle)
+      //   viewer.scene.camera.computeViewRectangle(pushRectangle)
+
+      // Add an imagery provider to show in the pushed region
+      var imageryLayers = globe.imageryLayers
+      var imageryProvider = new Cesium.TileMapServiceImageryProvider({
+        // url: '//cesiumjs.org/blackmarble',
+        url: 'http://192.168.0.253/DOM/ChinaMa',
+        maximumLevel: 8,
+        credit: 'Black Marble imagery courtesy NASA Earth Observatory',
+
+        // Limit the rectangle of the imagery layer so that tiles
+        // that will never be visible aren't loaded.
+        // rectangle: gp.getOuterRectangle(),
+      })
+      imageryLayers.addImageryProvider(imageryProvider)
+
+      // Set this property to limit the ImageryLayer to the push region.
+      imageryLayers.get(1).showOnlyInPushedRegion = true
+    </script>
+  </body>
+</html>

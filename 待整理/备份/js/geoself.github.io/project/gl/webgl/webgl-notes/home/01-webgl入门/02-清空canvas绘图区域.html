@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Clear canvas</title>
+    <link rel="stylesheet" href="../css/common.css">
+</head>
+
+<body>
+    <canvas id="webgl" width="512" height="512"></canvas>
+</body>
+<script src="../lib/webgl-utils.js"></script>
+<script src="../lib/webgl-debug.js"></script>
+<script src="../lib/cuon-utils.js"></script>
+<script>
+
+    (function () {
+
+        var canvas = document.getElementById('webgl');
+
+        /* 获取 WebGL上下问对象*/
+        var gl = getWebGLContext(canvas);
+
+        if (!gl) {
+            console.log('获取webgl上下文对象失败');
+        }
+
+        // var gl2 = canvas.getContext('webgl');
+
+        // console.log(gl);
+        // console.log(gl2);
+
+        /* 指定清空canvas 的颜色 */
+        gl.clearColor(0.0, 0.5, 0.5, 1.0);
+
+        /* 清空 canvas 绘图区域*/
+        gl.clear(gl.COLOR_BUFFER_BIT);
+
+    })();
+
+
+</script>
+
+</html>

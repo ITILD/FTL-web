@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <style>
+        .myPanel {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/cesium@1.65.0/Build/Cesium/Cesium.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/cesium@1.65.0/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+    <!-- <script src="https://www.lactame.com/lib/netcdfjs/0.7.0/netcdfjs.min.js"></script> -->
+        <script src="../Cesium-3D-Wind/lib/netcdfjs.min.js"></script>
+    <!-- three辅助控件 -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/dat.gui@0.7.6/build/dat.gui.min.js"></script> -->
+    <!-- babylons监测插件   wind3D去掉 -->
+    <!-- <script src="https://spectorcdn.babylonjs.com/spector.bundle.js"></script> -->
+</head>
+
+<body>
+    <div id="cesiumContainer"></div>
+    <script>var demo = true;</script>
+    <!-- 文件 -->
+    <script src="../Cesium-3D-Wind/util.js"></script>
+    <script src="../Cesium-3D-Wind/dataProcess.js"></script>
+    <script src="../Cesium-3D-Wind/customPrimitive.js"></script>
+    <script src="../Cesium-3D-Wind/particlesComputing.js"></script>
+    <script src="../Cesium-3D-Wind/particlesRendering.js"></script>
+    <script src="../Cesium-3D-Wind/particleSystem.js"></script>
+    <script src="../Cesium-3D-Wind/wind3D.js"></script>
+    <!--屏蔽three gui插件  风场参数设置!!!!!!! -->
+    <script src="../Cesium-3D-Wind/gui.js"></script>
+    <script src="../Cesium-3D-Wind/app.js"></script>
+</body>
+
+</html>

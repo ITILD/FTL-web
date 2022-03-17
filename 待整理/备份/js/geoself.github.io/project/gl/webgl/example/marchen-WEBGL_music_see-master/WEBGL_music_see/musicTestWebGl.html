@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Three.js 音乐可视化处理</title>
+    <script src="three.min.js"></script>
+    <style type="text/css">
+    body {
+        margin: 0;
+    }
+    canvas {
+        display: block;
+    }
+    .fps {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        color: white;
+    }
+    .musicFile {
+        position: absolute;
+        top: 0;
+        color: white;
+    }
+    </style>
+</head>
+<body>
+    <div class="fps"><span id="fps">0</span> FPS</div>
+    <div class="musicFile"><input type="file" id="musicFile">选择音乐文件</div>
+    <script type="text/javascript">
+    (function(){
+        var fps = document.querySelector('#fps');
+        var ac = new (window.AudioContext || window.webkitAudioContext)();
+        var analyser = ac.createAnalyser();
+        analyser.fftSize = 1024;
+        analyser.connect(ac.destination); 
+        var array = new Uint8Array(analyser.frequencyBinCount);
+        window.requestAnimationFrame = window.requestAnimationFrame || window.webkitRequestAnimationFrame;
+        var scene,camera,renderer,pointLight,directionalLight;
+        var objects = [];    //对象管理器
+        function initScene() {
+            //初始化场景
+            scene = new THREE.Scene();
+            console.log('初始化场景成功!');
+        }
+
+        function updateFps() {
+            updateFps.startTime = updateFps.startTime || new Date().getTime();
+            updateFps.diffTime = new Date().getTime() - updateFps.startTime;
+            fps.innerHTML = Math.floor(1000 / updateFps.diffTime);
+            updateFps.startTime = new Date().getTime();
+        }
+
+        function initCamera() {
+            //初始化摄像机
+            var w = document.documentElement.clientWidth;
+            var h = document.documentElement.clientHeight;
+            camera = new THREE.PerspectiveCamera(90, w/h, 1, 1000);
+            //camera = new THREE.OrthographicCamera(w, w, h, h, 1, 1000);
+            camera.position.set(0, 0, 0);
+            console.log('初始化摄像机成功!');
+        }
+
+        function initRenderer() {
+            var w = document.documentElement.clientWidth;
+            var h = document.documentElement.clientHeight;
+            try{
+                renderer = new THREE.WebGLRenderer();
+            }catch(e) {
+                alert('你的浏览器不支持WEBGL,请换最新的浏览器,推荐谷歌浏览器.');
+            }            
+            renderer.setSize(w, h);
+            document.body.appendChild(renderer.domElement);
+            console.log('初始化渲染引擎成功!');
+        }
+        function initLight() {
+            pointLight = new THREE.PointLight( 0xffffff, 1, 1000 );
+            pointLight.position.set( 0, 0, 50 );
+            directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+            directionalLight.position.set( 10, 20, 50 );
+            scene.add(pointLight);
+            //scene.add(directionalLight);
+        }
+        //box类
+        function createBox(op) {
+             op = op || {};
+             op.w = op.w || 1;
+             op.h = op.h || 1;
+             op.d = op.d || 1;
+             op.c = op.c || 0xff0000;
+             op.x = op.x || 0;
+             op.y = op.y || 0;
+             op.z = op.z || 0;
+            var geometry = new THREE.BoxGeometry(op.w, op.h, op.d);
+            var material = new THREE.MeshLambertMaterial({color: op.c});
+            var box = new THREE.Mesh( geometry, material );
+            box.position.set(op.x, op.y, op.z);
+            scene.add(box);
+            return box;
+        }
+        var boxX = 0;
+        var boxMaxX = Math.PI * 2;
+        function moveBox() {
+            //音乐处理
+            analyser.getByteFrequencyData(array);
+            boxX += 0.01;
+            if(boxX > boxMaxX) {
+                boxX = 0;
+            }
+            for(var i = 0,length = objects.length; i < length; i++) {
+                objects[i].scale.x = array[i] <= 0 ? 1 : array[i];
+                objects[i].scale.y = array[i] <= 0 ? 1 : array[i];
+                objects[i].scale.z = array[i] <= 0 ? 1 : array[i];
+                objects[i].rotation.x += 0.01;
+                objects[i].rotation.y += 0.02;
+                camera.rotation.x += 0.000001;
+                camera.rotation.y += 0.000001;
+                //objects[i].position.y += Math.sin(boxX) * 0.1;
+            }
+        }
+        function render() {
+            requestAnimationFrame(render);
+            moveBox();
+            updateFps();
+            renderer.render(scene, camera);
+        }
+
+        (function(){
+            initScene();
+            initCamera();
+            initRenderer();
+            initLight();
+            //创建对象
+            for(var i = 0; i < analyser.fftSize; i++) {
+                objects.push(createBox({
+                    w : 0.1,
+                    h : 0.1,
+                    d : 0.1,
+                    c : parseInt(Math.random()*166138875,16),
+                    x : -100 + Math.random() * 200,
+                    y : -100 + Math.random() * 200,
+                    z : -100 + Math.random() * 200
+                }));
+            }
+            console.log(objects[0]);
+            render();
+
+            //监听事件
+            //上传音乐
+            document.querySelector('#musicFile').onchange = function(e){
+                e = e || window.event;
+                var files = this.files;
+                for(var i = 0, f; f = files[i]; i++) {
+                    var reader = new FileReader();
+                    reader.onload = (function(file) {
+                        return function(e) {
+                            ac.decodeAudioData(this.result, function(buffer){
+                                var source = ac.createBufferSource();
+                                source.buffer = buffer;
+                                source.connect(analyser);
+                                source.start(0);
+                            },function(err){
+                                console.log('解码失败:' + e);
+                            });
+                        };
+                    })(f);
+                    //读取文件内容
+                    reader.readAsArrayBuffer(f);
+                }
+            }
+            //旋转镜头
+            var isMouseDown = false;
+            var downX = 0;
+            var downY = 0;
+            var downRotationY = 0;
+            var downRotationZ = 0;
+            window.onmousedown = function(event) {
+                if(event.which == 1){
+                    //左击下
+                    isMouseDown = true;
+                    downX = event.pageX;
+                    downY = event.pageY;
+                    camera.rotation.y = downRotationY;
+                    camera.rotation.z = downRotationZ;
+                }
+            }
+            window.onmouseup = function(event) {
+                if(event.which == 1){
+                    //左抬起
+                    isMouseDown = false;
+                    downRotationY = camera.rotation.y;
+                    downRotationZ = camera.rotation.z;
+                }
+            }
+            window.onmousemove = function(event) {
+                if(isMouseDown) {
+                    var offsetX = event.pageX - downX;
+                    var offsetY = event.pageY - downY;
+                    //改变镜头
+                    camera.rotation.y = downRotationY + offsetX / 500;
+                    camera.rotation.z = downRotationZ + offsetY / 500;
+                }
+            }
+            //缩放镜头
+            window.onmousewheel = function(event) {
+                if(event.wheelDelta > 0) {
+                    //上滚动
+                    camera.position.z += 5;
+                }else {
+                    //下滚动
+                    camera.position.z -= 5;
+                }
+            }
+        })();
+    })();
+    </script>
+</body>
+</html>

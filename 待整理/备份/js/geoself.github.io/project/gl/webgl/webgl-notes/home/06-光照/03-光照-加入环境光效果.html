@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>webgl-example</title>
+    <link rel="stylesheet" href="../css/common.css">
+</head>
+
+<body>
+    <canvas id="webgl" width="512" height="512"></canvas>
+</body>
+<script src="../lib/webgl-utils.js"></script>
+<script src="../lib/webgl-debug.js"></script>
+<script src="../lib/cuon-utils.js"></script>
+<script src="../lib/cuon-matrix.js"></script>
+<script src=""></script>
+
+<script>
+
+    // 顶点着色器WW
+    var v_shader_source = '' +
+        'attribute vec4 a_Position;' +
+        'attribute vec4 a_Color;' +
+        'attribute vec4 a_Normal;' +// 法向量
+        'uniform mat4 u_MvpMatrix;' + // 视图矩阵向量
+        'uniform vec3 u_DiffuseLight;' +// 漫反射光颜色
+        'uniform vec3 u_LightDirection;' + // 漫反射光的位置 归一化的世界坐标
+        'uniform vec3 u_AmbientLight;' +// 环境光的颜色
+        'varying vec4 v_Color;' +
+        'void main(){' +
+        '   gl_Position = u_MvpMatrix * a_Position;' +// 顶点坐标乘以模型视图投影矩阵
+        '   vec3 normal = normalize(a_Normal.xyz);' +// 归一化法向量
+        '   float nDotL = max(dot(u_LightDirection, normal), 0.0);' +// 计算光线方向和法向量的点积
+        '   vec3 diffuse = u_DiffuseLight * a_Color.rgb * nDotL;' +// 计算漫反射颜色值
+        '   vec3 ambient = u_AmbientLight * a_Color.rgb;' +//计算环境反射颜色值
+        '   v_Color = vec4(diffuse + ambient,a_Color.a);' +//将漫反射和环境反射相加，后缀a是第四个分量值
+        '}';
+
+    // 片元着色器
+    var f_shader_source = '' +
+        'precision mediump float;' +
+        'varying vec4 v_Color;' +
+        'void main(){' +
+        '   gl_FragColor = v_Color;' +
+        '}';
+
+
+    (function () {
+
+        var canvas = document.getElementById('webgl');
+
+        var gl = getWebGLContext(canvas);
+
+        if (!gl) {
+
+            console.log('不能获取webgl 上下文');
+            return false;
+
+        }
+
+        // 初始化渲染器
+        if (!initShaders(gl, v_shader_source, f_shader_source)) {
+
+            console.log('初始化渲染器失败');
+            return false;
+
+        }
+
+        // 设置顶点位置
+        var n = initVertexBuffers(gl);
+        if (n < 0) {
+
+            console.log('初始化顶点信息失败');
+            return false;
+
+        }
+
+        // 设置清楚颜色
+        gl.clearColor(0.0, 0.5, 0.5, 1.0);
+
+        // 开启深度检测
+        gl.enable(gl.DEPTH_TEST);
+
+        // 获 uniform 变量的存储位置
+        var u_MvpMatrix = gl.getUniformLocation(gl.program, 'u_MvpMatrix');
+        var u_DiffuseLight = gl.getUniformLocation(gl.program, 'u_DiffuseLight');
+        var u_LightDirection = gl.getUniformLocation(gl.program, 'u_LightDirection')
+        var u_AmbientLight = gl.getUniformLocation(gl.program, 'u_AmbientLight');
+
+        if (!u_MvpMatrix || !u_DiffuseLight || !u_LightDirection || !u_AmbientLight) {
+
+            console.log('获取矩阵存储位置失败');
+            return false;
+
+        }
+
+        // 设置漫反射颜色 
+        gl.uniform3f(u_DiffuseLight, 1.0, 1.0, 1.0);
+
+        // 设置光线方向，世界坐标系下的
+        var lightDirection = new Vector3([0.5, 3.0, 4.0]);
+        lightDirection.normalize();// 向量归一化
+        gl.uniform3fv(u_LightDirection, lightDirection.elements);
+
+        gl.uniform3f(u_AmbientLight, 0.2, 0.2, 0.2);
+
+        // 模型视图投影矩阵
+        var mvpMatrix = new Matrix4();// 模型视图矩阵
+
+        // 设置正射投影可是区域
+        mvpMatrix.setPerspective(30, 1, 1, 100);
+        mvpMatrix.lookAt(3, 3, 7, 0, 0, 0, 0, 1, 0);
+
+
+        // 循环渲染 旋转立方体
+        function animate() {
+
+            requestAnimationFrame(animate);
+
+            mvpMatrix.rotate(-1, 0, 1, 0);
+
+            gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
+
+            // 清空颜色和深度缓冲区
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+            gl.drawElements(gl.TRIANGLES, n, gl.UNSIGNED_BYTE, 0);
+
+        }
+
+        animate();
+
+        gl.uniformMatrix4fv(u_MvpMatrix, false, mvpMatrix.elements);
+
+        // 清空颜色和深度缓冲区
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+        gl.drawElements(gl.TRIANGLES, n, gl.UNSIGNED_BYTE, 0);
+
+        function initVertexBuffers(gl) {
+
+            // Create a cube
+            //    v6----- v5
+            //   /|      /|
+            //  v1------v0|
+            //  | |     | |
+            //  | |v7---|-|v4
+            //  |/      |/
+            //  v2------v3
+            // 顶点坐标
+            var vertices = new Float32Array([   // Vertex coordinates
+                1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0,  // v0-v1-v2-v3 front
+                1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0, -1.0, 1.0, 1.0, -1.0,  // v0-v3-v4-v5 right
+                1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, 1.0,  // v0-v5-v6-v1 up
+                -1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, 1.0,  // v1-v6-v7-v2 left
+                -1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, -1.0, 1.0, -1.0, -1.0, 1.0,  // v7-v4-v3-v2 down
+                1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0   // v4-v7-v6-v5 back
+            ]);
+            // 顶点颜色
+            var colors = new Float32Array([     // Colors
+                1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,  // v0-v1-v2-v3 front(blue)
+                1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,  // v0-v3-v4-v5 right(green)
+                1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,  // v0-v5-v6-v1 up(red)
+                1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,  // v1-v6-v7-v2 left
+                1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,  // v7-v4-v3-v2 down
+                1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0   // v4-v7-v6-v5 back
+            ]);
+
+            // 法向量
+            var normals = new Float32Array([    // Normal
+                0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0,  // v0-v1-v2-v3 front
+                1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0,  // v0-v3-v4-v5 right
+                0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0,  // v0-v5-v6-v1 up
+                -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0,  // v1-v6-v7-v2 left
+                0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0,  // v7-v4-v3-v2 down
+                0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0   // v4-v7-v6-v5 back
+            ]);
+
+            // 顶点索引
+            var indices = new Uint8Array([       // Indices of the vertices
+                0, 1, 2, 0, 2, 3,    // front
+                4, 5, 6, 4, 6, 7,    // right
+                8, 9, 10, 8, 10, 11,    // up
+                12, 13, 14, 12, 14, 15,    // left
+                16, 17, 18, 16, 18, 19,    // down
+                20, 21, 22, 20, 22, 23     // back
+            ]);
+
+            // 创建缓冲区
+            var indexBuffer = gl.createBuffer();
+            if (!indexBuffer) return -1;
+
+            // 将顶点和颜色数据写入缓冲区对象
+            var v_num = initArrayBuffer(gl, vertices, 3, gl.FLOAT, 'a_Position');
+            var c_num = initArrayBuffer(gl, colors, 3, gl.FLOAT, 'a_Color');
+            var n_num = initArrayBuffer(gl, normals, 3, gl.FLOAT, 'a_Normal');
+
+            if (!v_num | !c_num | !n_num) {
+
+                console.log('初始化缓冲区失败！');
+                return -1;
+
+            }
+
+            // Unbind the buffer object
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
+
+            return indices.length;
+
+        }
+
+
+        // 初始化缓冲区对象
+        function initArrayBuffer(gl, data, num, type, attribute) {
+
+            // 创建缓冲区
+            var buffer = gl.createBuffer();
+
+            if (!buffer) {
+
+                console.log('创建缓冲区失败!');
+                return false;
+
+            }
+
+            // 写入数据到缓冲区
+            gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+            gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+
+            // 将缓冲区对象分配给属性变量
+            var a_attribute = gl.getAttribLocation(gl.program, attribute);
+
+            if (a_attribute < 0) {
+
+                console.log('获取变量存储地址失败' + attribute);
+                return false;
+
+            }
+
+            gl.vertexAttribPointer(a_attribute, num, type, false, 0, 0);
+
+            // 启用缓冲区属性变量
+            gl.enableVertexAttribArray(a_attribute);
+
+            return true;
+
+        }
+
+    }())
+
+
+</script>
+
+</html>

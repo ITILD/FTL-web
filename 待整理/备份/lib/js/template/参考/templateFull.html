@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/cesium@1.80.0/Build/Cesium/Cesium.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/cesium@1.80.0/Build/Cesium/Widgets/widgets.css"
+      rel="stylesheet"
+    /> -->
+    <!-- work -->
+    <link href="cesiumStart.css" rel="stylesheet" />
+  </head>
+
+  <body>
+    <div id="cesiumContainer" class=""></div>
+
+    <div style="left: 10px" class="leftWorkListBox"></div>
+
+    <!--------------------------------------------------- 二三维地图统一测试 --------------------------------------------------->
+    <!-- 初始化 -->
+    <script src="main.js" type="module"></script>
+    <script src="mainQuick.js"></script>
+    <!-- data加载  dao service-->
+
+    <!---------------------------------------------------  local外部js库 --------------------------------------------------->
+
+    <script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+    <!-- UI -->
+    <!-- 引入 layui.css layui.js-->
+
+    <link rel="stylesheet" href="//unpkg.com/layui@2.6.7/dist/css/layui.css" />
+    <script src="//unpkg.com/layui@2.6.7/dist/layui.js"></script>
+
+    <!-- GEO -->
+    <script src="lib/geo/turf.min.js"></script>
+    <!-- DB -->
+    <script src="lib/db/localforage.min.js"></script>
+    <!-- TODO  动态加载静态-->
+    <!-- 远程 -->
+    <!-- 
+    <link rel="stylesheet" href="lib/ui/layui@2.6.7.css" />
+
+    -->
+  </body>
+</html>
+
+<!-- 
+<template>
+  <div>
+    <canvas id="CADMain_Start" class="Index2dwith3d"></canvas>
+    <div id="datGui"></div>
+  </div>
+</template>
+
+<script>
+
+// -------LIB_UI
+import { ref, reactive, onMounted } from 'vue'
+
+
+import '../../../../assets/css/index/datgui.css'
+import { test } from '../../../../api/App/Templates/GL/TemplateControls/todo/test.js'
+import { MainControl } from '../../../../api/App/Templates/GL/TemplateControls/datguiControl/MainControl.js'
+
+export default {
+  name: 'test',
+  props: {
+  },
+  setup(props) {
+    const getViewer = async () => {
+      // test()
+      MainControl()
+    }
+
+    onMounted(getViewer)
+
+    return {
+    }
+  }
+}
+</script>
+
+
+<style>
+.Index2dwith3d {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+</style> -->

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>绘制一个点</title>
+    <link rel="stylesheet" href="../css/common.css" />
+  </head>
+
+  <body>
+    <canvas id="webgl" width="512" height="512"></canvas>
+  </body>
+  <!-- <script src="../lib/webgl-utils.js"></script> -->
+  <!-- <script src="../lib/webgl-debug.js"></script> -->
+  <!-- <script src="../lib/cuon-utils.js"></script> -->
+  <script>
+    ;(() => {
+      // 获取canvas对象
+      var canvas = document.getElementById('webgl')
+
+      // 获取webgl 上下文对象
+      var gl = getWebGLContext(canvas)
+
+      // 预定清除颜色
+      gl.clearColor(0.0, 0.5, 0.5, 1.0)
+
+      // 清除颜色缓冲区
+      gl.clear(gl.COLOR_BUFFER_BIT)
+
+      // 顶点着色器
+      var VERTEX_SHADER_SOURCE =
+        'void main(){' +
+        '   gl_Position = vec4(0.0, 0.0, 0.0, 1.0);' + //设置顶点坐标
+        '   gl_PointSize = 10.0;' + //设置点的大小
+        '}'
+
+      // 片元着色器
+      var FRAGMENT_SHADER_SOURCE =
+        'void main(){' +
+        '   gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);' + //设置顶点颜色
+        '}'
+
+      // 初始化着色器
+      if (!initShader(gl, VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_SOURCE)) {
+        console.log('初始化着色器失败！')
+        return
+      }
+
+      // 开始绘制
+      gl.drawArrays(gl.POINTS, 0, 1)
+    })()
+
+    // 初始化着色器方法
+    function initShader(gl, vertexShaderSource, fragmentShaderSource) {
+      // 创建顶点着色器对象
+      var vertexShader = gl.createShader(gl.VERTEX_SHADER)
+
+      // 创建片元着色器对象
+      var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)
+
+      // 引入着色器代码
+      gl.shaderSource(vertexShader, vertexShaderSource)
+      gl.shaderSource(fragmentShader, fragmentShaderSource)
+
+      // 编译顶点和片元着色器代码
+      gl.compileShader(vertexShader)
+      gl.compileShader(fragmentShader)
+
+      // 创建程序对象
+      var program = gl.createProgram()
+
+      // 附着附着着色器到程序
+      gl.attachShader(program, vertexShader)
+      gl.attachShader(program, fragmentShader)
+
+      // 链接程序
+      gl.linkProgram(program)
+
+      // 使用程序
+      gl.useProgram(program)
+
+      // 返回 program 对象
+      return program
+    }
+    /**
+     * Initialize and get the rendering for WebGL
+     * @param canvas <cavnas> element
+     * @param opt_debug flag to initialize the context for debugging
+     * @return the rendering context for WebGL
+     */
+    function getWebGLContext(canvas, opt_debug) {
+      // Get the rendering context for WebGL
+      // var gl = WebGLUtils.setupWebGL(canvas)
+      var gl = setupWebGL(canvas)
+
+      return gl
+    }
+
+    function setupWebGL(canvas, opt_attribs, opt_onError) {
+      function handleCreationError(msg) {
+        var container = document.getElementsByTagName('body')[0]
+        //var container = canvas.parentNode;
+        if (container) {
+          var str = window.WebGLRenderingContext
+            ? OTHER_PROBLEM
+            : GET_A_WEBGL_BROWSER
+          if (msg) {
+            str += '<br/><br/>Status: ' + msg
+          }
+          container.innerHTML = makeFailHTML(str)
+        }
+      }
+
+      opt_onError = opt_onError || handleCreationError
+
+      if (canvas.addEventListener) {
+        canvas.addEventListener(
+          'webglcontextcreationerror',
+          function (event) {
+            opt_onError(event.statusMessage)
+          },
+          false
+        )
+      }
+      var context = create3DContext(canvas, opt_attribs)
+      if (!context) {
+        if (!window.WebGLRenderingContext) {
+          opt_onError('')
+        } else {
+          opt_onError('')
+        }
+      }
+
+      return context
+    }
+    /**
+     * Creates a webgl context.
+     * @param {!Canvas} canvas The canvas tag to get context
+     *     from. If one is not passed in one will be created.
+     * @return {!WebGLContext} The created context.
+     */
+    function create3DContext(canvas, opt_attribs) {
+      var names = ['webgl', 'experimental-webgl', 'webkit-3d', 'moz-webgl']
+      var context = null
+      for (var ii = 0; ii < names.length; ++ii) {
+        try {
+          context = canvas.getContext(names[ii], opt_attribs)
+        } catch (e) {}
+        if (context) {
+          break
+        }
+      }
+      return context
+    }
+  </script>
+</html>

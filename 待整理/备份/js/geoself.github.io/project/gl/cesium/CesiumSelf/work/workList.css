@@ -1,0 +1,42 @@
+.leftWorkListBox {
+  width: 250px;
+  min-height: 400px;
+  position: absolute;
+  top: 10px;
+  left: 0px;
+  border: 1px solid #a4a4a4;
+  border-radius: 5px;
+  background: rgba(43, 44, 47, 0.4);
+  box-shadow: 1px 1px 5px #000000;
+}
+
+.leftWorkListButton {
+  color: aliceblue;
+  padding: 10px;
+  border: 1px solid #a4a4a4;
+  border-radius: 5px;
+  background: rgba(43, 44, 47, 0.4);
+  box-shadow: 1px 1px 5px #000000;
+}
+
+.leftWorkListButton:hover {
+  cursor: pointer;
+  background: rgba(43, 44, 47, 0.2);
+}
+
+.leftWorkListButton:active {
+  background: rgba(43, 44, 47, 0.4);
+}
+
+
+
+
+.leftWorkListTitle {
+  color: #dbe9ffcf;
+  border: 3px solid rgba(255, 255, 255, 0.404);
+}
+
+.testColor {
+  color: #596468d8;
+  border: 3px solid rgba(161, 169, 173, 0.856);
+}

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+    <script src="../node_modules/three/build/three.js"></script>
+    <script src="../node_modules/three/examples/js/libs/stats.min.js"></script>
+    <script src="../node_modules/three/examples/js/libs/dat.gui.min.js"></script>
+    <script src="../node_modules/three/examples/js/controls/OrbitControls.js"></script>
+    <script src="../node_modules/chroma-js/chroma.js"></script>
+    <script src="../Physijs/physi.js"></script>
+    <style>
+        html,
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+    </style>
+
+</head>
+
+<body>
+    <script>
+
+        var scale = chroma.scale(['yellow', 'red']);
+
+        Physijs.scripts.worker = '../Physijs/physijs_worker.js';
+        Physijs.scripts.ammo = '../Physijs/examples/js/ammo.js';
+
+        var renderer, scene, camera, stats, light, animate, control;
+
+        function init() {
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+            renderer.setClearColor(0x222222);
+            document.body.appendChild(renderer.domElement);
+
+            stats = new Stats();
+            document.body.appendChild(stats.domElement);
+
+            scene = new Physijs.Scene;
+            scene.setGravity(new THREE.Vector3(0, -50, 0));
+
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+            camera.position.set(50, 30, 50);
+            camera.lookAt(new THREE.Vector3(10, 0, 10));
+
+            light = new THREE.SpotLight(0xffffff);
+            light.position.set(20, 100, 50);
+            scene.add(light);
+
+            // control = new THREE.OrbitControls(camera, renderer.domElement);
+
+            requestAnimationFrame(animate);
+
+            console.log(Physijs);
+
+            // 质量
+            var mass = 10;
+
+            // PlaneMesh
+            var plane = new Physijs.PlaneMesh(new THREE.PlaneGeometry(70, 70, 70), Physijs.createMaterial(new THREE.MeshPhongMaterial({
+                color: 0xCCCCCC
+            })), mass)
+
+            plane.rotation.x = Math.PI * -0.5;
+            plane.position.y = -20;
+            console.log(plane);
+
+            // 摩擦系数
+            var friction = 0.5;
+            // 弹性系数
+            var restitution = 3
+
+            var sphere = new Physijs.SphereMesh(new THREE.SphereGeometry(2, 100, 100), Physijs.createMaterial(new THREE.MeshPhongMaterial({
+                color: 0xCCCCCC
+            }), friction, restitution), 0.1);
+
+            sphere.position.y = 20;
+
+            scene.add(plane)
+            scene.add(sphere);
+
+        }
+
+        animate = function animate() {
+
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+
+            stats.update();
+
+            scene.simulate(undefined, 1);
+
+        }
+
+        init();
+
+
+    </script>
+</body>
+
+</html>

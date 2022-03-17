@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>绘制一个点</title>
+    <link rel="stylesheet" href="../css/common.css">
+</head>
+<body>
+<canvas id="webgl" width="512" height="512"></canvas>
+</body>
+<script src="../lib/webgl-utils.js"></script>
+<script src="../lib/webgl-debug.js"></script>
+<script src="../lib/cuon-utils.js"></script>
+<script>
+
+    // 顶点着色器
+    var vertex_shader_source =
+        'void main() {' +
+        '   gl_Position = vec4(0.0, 0.0, 0.0, 1.0);' + // 设置顶点坐标
+        '   gl_PointSize = 10.0;' + // 设置顶点的大小
+        '' +
+        '}';
+
+    // 片元着色器
+    var fragment_shader_source =
+        'void main(){' +
+        '   gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);' + //设置顶点颜色
+        '}';
+
+    (function () {
+
+
+        // 获取 canvas 对象
+        var canvas = document.getElementById('webgl');
+
+        // 获取webgl上下文对象
+        var gl = getWebGLContext(canvas);
+
+        // 初始化着色器
+        if (!initShader(gl, vertex_shader_source, fragment_shader_source)) {
+
+            console.log('初始化着色器失败');
+            return false;
+
+        }
+
+        // 指定canvas背景颜色
+        gl.clearColor(0.0, 0.5, 0.5, 1.0);
+
+        // 清除颜色缓冲区
+        gl.clear(gl.COLOR_BUFFER_BIT);
+
+        gl.drawArrays(gl.POINTS, 0, 1);
+
+
+    }());
+
+    // 初始化着色器方法
+    function initShader(gl, vertexShaderSource, fragmentShaderSource) {
+
+        // 创建顶点着色器对象
+        var vertexShader = gl.createShader(gl.VERTEX_SHADER);
+
+        // 创建片元着色器对象
+        var fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+
+        // 引入着色器代码
+        gl.shaderSource(vertexShader, vertexShaderSource);
+        gl.shaderSource(fragmentShader, fragmentShaderSource);
+
+        // 编译顶点和片元着色器代码
+        gl.compileShader(vertexShader);
+        gl.compileShader(fragmentShader);
+
+        // 创建程序对象
+        var program = gl.createProgram();
+
+        // 附着附着着色器到程序
+        gl.attachShader(program, vertexShader);
+        gl.attachShader(program, fragmentShader);
+
+        // 链接程序
+        gl.linkProgram(program);
+
+        // 使用程序
+        gl.useProgram(program);
+
+        // 返回 program 对象
+        return program;
+
+    }
+
+
+</script>
+</html>

@@ -1,0 +1,234 @@
+  /* 
+  主色
+  color: #2a3e63;
+  
+  
+  */
+
+  /* 颜色 */
+  .backgroundColor0 {
+    background-color: #aaa1cc8a;
+
+  }
+
+  /* html {   
+  } */
+  body {
+    /* width: 100%; */
+    margin: 0px;
+    display: grid;
+    grid-template-rows: 90px auto 100px;
+
+
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-size: 1em;
+  }
+
+  /* 媒介类型 不同设备样式 */
+  .up {
+    background: radial-gradient(at 15% 50%, #2a3e63, rgb(0, 0, 0))
+  }
+
+  .index-logo {
+    /* margin: 34px calc(60% - 258px) 0% 1%; */
+    /* background: url(./source/img/runoob-logo@2x.png); */
+    /* background-size: auto;
+    background-size: 258px 39px; */
+
+    /* 艺术字替代图片 */
+    padding: 22px 1%;
+    width: 60%;
+    float: left;
+    /* height: 39px; */
+    /* text-align: center; */
+    font-size: 25px;
+    font-weight: bold;
+    /* -webkit-backface-visibility: hidden; */
+  }
+
+  .index-logo-url {
+    display: block;
+    /* height: 39px; */
+    /* 辅助右键搜索看到 */
+    /* text-indent: -9999px; */
+    color: hsla(0, 0%, 0%, 0);
+    perspective: 80px;
+    outline: none;
+  }
+
+  /* light ------------------------------------------------------ */
+  #flash {
+    display: inline-block;
+    text-shadow: #bbb 0 0 1px, #fff 0 -1px 2px, #fff 0 -3px 2px, rgba(0, 0, 0, 0.8) 0 30px 25px;
+    transition: margin-left 0.3s cubic-bezier(0, 1, 0, 1);
+  }
+
+  .index-logo:hover #flash {
+    margin-left: 1%;
+    transition: margin-left 1s cubic-bezier(0, 0.75, 0, 1);
+  }
+
+  #light {
+    display: inline-block;
+    text-shadow: #111 0 0 1px, rgba(255, 255, 255, 0.1) 0 1px 3px;
+
+
+  }
+
+  .index-logo:hover #light {
+    margin-left: 1%;
+    font-size: 17px;
+    top: 13%;
+    position: absolute;
+    text-shadow: #fff 0 0 2px, #9fbfff 0 0 10px, #f9fbff 0 0 25px;
+    transform: rotateY(-12deg) scaleX(3.0);
+    transform-origin: 0%;
+    transition: transform 0.3s cubic-bezier(0.9, 0.75, 0, 1), text-shadow 0.1s ease-out;
+  }
+
+  /* light ------------------------------------------------------ */
+  .index-search {
+    width: 36%;
+    right: 10px;
+    float: left;
+    padding: 34px 1%;
+  }
+
+  .placeholder {
+    width: 94%;
+    line-height: 25px;
+    color: #f2f4fa8c;
+    background-color: #2a3e63a9;
+
+  }
+
+  .placeholder:focus {
+    color: #f2f4fa;
+    background-color: #2a3e63;
+  }
+
+  .middle {
+    display: grid;
+    grid-template-columns: 10% 80% 10%;
+    background-color: #87afc7ce;
+  }
+
+  .down {
+    background-color: #878fc76b;
+  }
+
+  /* 上部导航栏 */
+  .projectTabQuickMap-navigation {
+    grid-column-end: span 3;
+    background-color: #2a3e63;
+    height: 34px;
+    /* background-color: #908ca0; */
+  }
+
+  .projectTabQuick-btn {
+    border: 0px;
+    background-color: #2a3e63;
+    color: #66abdb;
+    cursor: pointer;
+  }
+
+  .projectTabQuick-btn:hover {
+
+    color: #f2f4fa;
+
+  }
+
+
+
+  /* 左侧边栏 */
+  .projectGroupListQuick-navigation {
+    top: 124px;
+    background-color: #87c79ace;
+    width: 10vw;
+    border: 2px;
+    position: fixed;
+  }
+
+  .projectGroupList-navigation {
+    grid-column-start: 2;
+    grid-column-end: 4;
+
+  }
+
+  .projectGroup-navigation {
+    overflow: hidden;
+
+  }
+
+  /* 选择 class="projectGroup-navigation" 的所有 <h2> 元素。 */
+  .projectGroup-navigation-title {
+    border-bottom: 2px solid #eaeaea;
+  }
+
+  .project-navigation {
+    width: 30.33%;
+    margin: 0.5% 0.5% 0.5% 0.5%;
+    text-align: left;
+    height: 80px;
+    color: #22406a;
+    background-color: #f2f4fa;
+    border-radius: 5px;
+    padding: 1% 1%;
+
+    float: left;
+  }
+
+  .project-navigation:hover {
+    background-color: #66abdb;
+  }
+
+  .projectTitle {
+    /* 下划线 */
+    text-decoration: none;
+    color: #2a3e63;
+  }
+
+  @media screen and (max-width: 900px) {
+    .index-logo:hover #light {
+      font-size: 15px;
+      transform: rotateY(-20deg) scaleX(2.2);
+    }
+
+    .middle {
+      background-color: rgb(230, 173, 192);
+    }
+
+    .projectGroupList-navigation {
+      grid-column-start: 1;
+      grid-column-end: 4;
+
+    }
+
+    .projectGroupListQuick-navigation {
+      display: none;
+    }
+
+    .projectTabQuickMap-navigation a:nth-child(n+4) {
+      display: none;
+    }
+
+    .projectGroup-navigation {
+      overflow: hidden;
+    }
+
+    .project-navigation {
+      width: 47%;
+    }
+  }
+
+  @media screen and (max-width: 600px) {
+    .index-search {
+      display: none;
+    }
+
+  }

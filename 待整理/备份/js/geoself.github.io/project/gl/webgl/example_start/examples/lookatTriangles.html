@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <canvas id="app" width="800" height="600">
+        your browser don't support canvas
+    </canvas>
+
+    <script src="../lib/webgl-utils.js"></script>
+    <script src="../lib/webgl-debug.js"></script>
+    <script src="../lib/cuon-utils.js"></script>
+
+    <script>
+        var VSHADER_SOURCE = `
+              attribute vec4 a_Position;
+              void main(){
+                  gl_Position = a_Position;
+              }
+          `;
+        
+        var FSHADER_SOURCE = `
+              void main(){
+                  gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+              }
+          `;
+
+        var canvas = document.getElementById('app');
+        /** @type {WebGLRenderingContext}*/
+        var gl = getWebGLContext(canvas);
+
+        if(!gl) throw new Error("can't get webgl context");
+
+        if(!initShaders(gl, VSHADER_SOURCE, FSHADER_SOURCE)){
+            throw new Error("can't init shaders");
+        }
+        
+        var n = initVertexBuffer(gl);
+        if(n < 0) throw new Error("can't init vertex buffer");
+
+        gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.drawArrays(gl.TRIANGLES, 0, n);
+
+        function initVertexBuffer(/** @type{WebGLRenderingContext}*/ gl){
+            let vertices = new Float32Array([
+                0.5, 0.5, 0.0, 0.0, -0.5, 0.5
+            ]);
+            let n = 3;
+
+            let vertexBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+            var a_Position = gl.getAttribLocation(gl.program, 'a_Position');
+            gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(a_Position);
+
+            return n;
+        }
+        
+    </script>
+</body>
+</html>

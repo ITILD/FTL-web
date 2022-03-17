@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <style>
+        .myPanel {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/cesium@1.80.0/Build/Cesium/Cesium.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/cesium@1.80.0/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+    <script src="https://www.lactame.com/lib/netcdfjs/0.7.0/netcdfjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dat.gui@0.7.6/build/dat.gui.min.js"></script>
+    <script src="https://spectorcdn.babylonjs.com/spector.bundle.js"></script>
+</head>
+
+<body>
+    <div id="cesiumContainer"></div>
+    <script>
+        var demo = true;
+        Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIzNzM4ZDQ5OS01YTJhLTRiOWYtYWZkNy0yNzk4OTZmN2M1ODUiLCJpZCI6NDY4OCwiaWF0IjoxNjA4MDEwMDE2fQ.OzrbigaF6oOBqjeaIq_owqbb9we71vn3zH3ZMqtBLuI';
+    </script>
+    <script src="../Cesium-3D-Wind/util.js"></script>
+    <script src="../Cesium-3D-Wind/dataProcess.js"></script>
+    <script src="../Cesium-3D-Wind/customPrimitive.js"></script>
+    <script src="../Cesium-3D-Wind/particlesComputing.js"></script>
+    <script src="../Cesium-3D-Wind/particlesRendering.js"></script>
+    <script src="../Cesium-3D-Wind/particleSystem.js"></script>
+    <script src="../Cesium-3D-Wind/wind3D.js"></script>
+    <script src="../Cesium-3D-Wind/gui.js"></script>
+    <script src="../Cesium-3D-Wind/app.js"></script>
+</body>
+
+</html>

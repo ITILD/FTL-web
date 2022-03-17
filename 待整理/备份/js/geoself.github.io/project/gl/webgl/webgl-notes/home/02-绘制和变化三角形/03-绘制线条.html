@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>通过鼠标点击绘制点</title>
+    <link rel="stylesheet" href="../css/common.css">
+</head>
+<body>
+<canvas id="webgl" width="512" height="512"></canvas>
+</body>
+<script src="../lib/webgl-utils.js"></script>
+<script src="../lib/webgl-debug.js"></script>
+<script src="../lib/cuon-utils.js"></script>
+
+<script>
+
+    // 顶点着色器
+    var vertex_shader_source = '' +
+        'attribute vec4 a_Position;' +
+        'void main() {' +
+        '   gl_Position = a_Position;' +
+        '   gl_PointSize = 10.0;' +
+        '}';
+
+    // 片元着色器
+    var fragment_shader_source = '' +
+        'void main(){' +
+        '   gl_FragColor = vec4(0.5, 0.0, 0.5, 1.0);' +
+        '}';
+
+    (function () {
+
+        // 获取canvas对象
+        var canvas = document.getElementById('webgl');
+
+        // 获取webgl 上下文对象
+        var gl = getWebGLContext(canvas);
+
+        // 初始化着色器
+        if (!initShaders(gl, vertex_shader_source, fragment_shader_source)) {
+            console.log('初始化着色器失败！');
+            return false;
+        }
+
+        // 设置顶点位置
+        var n = initVertexBuffer(gl);
+        if (n < 0) {
+            console.log('顶点写入缓存失败！');
+            return false;
+        }
+
+        // 设置清空颜色
+        gl.clearColor(0.0, 0.5, 0.5, 1.0);
+
+        // 清空canvas
+        gl.clear(gl.COLOR_BUFFER_BIT);
+
+        gl.drawArrays(gl.LINE_LOOP, 0, n);
+        // gl.drawArrays(gl.POINTS, 0, n);
+
+        // 将顶点信息写入缓存区
+        function initVertexBuffer(gl) {
+
+            var vertices = new Float32Array([
+               0.0, 0.5, 0.5, -0.5, -0.5, -0.5
+            ]);
+
+            var n = vertices.length / 2;
+
+            // 创建缓冲区对象
+            var vertexBuffer = gl.createBuffer();
+            if (!vertexBuffer) {
+                console.log('创建缓冲区对象失败！');
+                return -1;
+            }
+
+            // 绑定缓冲区对象到目标
+            gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+
+            // 将数据写入到缓冲区对象
+            gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+
+            var a_Position = gl.getAttribLocation(gl.program, 'a_Position');
+            if (a_Position < 0) {
+                console.log('获取attribute变量失败！');
+                return -1;
+            }
+
+            // 将缓冲区对象分配给attribute变量
+            gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 0, 0);
+
+            // 开启attribute变量
+            gl.enableVertexAttribArray(a_Position);
+
+            return n;
+
+        }
+
+    }());
+
+</script>
+</html>

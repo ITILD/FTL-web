@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>webgl-example</title>
+    <link rel="stylesheet" href="../css/common.css">
+</head>
+
+<body>
+    <canvas id="webgl" width="512" height="512"></canvas>
+</body>
+<script src="../lib/webgl-utils.js"></script>
+<script src="../lib/webgl-debug.js"></script>
+<script src="../lib/cuon-utils.js"></script>
+<script src="../lib/cuon-matrix.js"></script>
+<script src="../lib/GLSLLoader.js"></script>
+
+<script>
+
+    var GLSLLoader = new GLSLLoader();
+
+    var shaders = [
+        './GLSL/08.single_fragment_shader.glsl',
+        './GLSL/08.single_vertex_shader.glsl',
+        './GLSL/08.texture_fragment_shader.glsl',
+        './GLSL/08.texture_vertex_shader.glsl'
+    ];
+
+    GLSLLoader.loadArrays(shaders, main);
+
+    function main(array) {
+
+        // 单色立方体顶点和片元着色器
+        var single_vertex_shader = array.findShader('single_vertex_shader');
+        var single_fragment_shader = array.findShader('single_fragment_shader');
+
+        // 贴图立方体顶点和片元着色器
+        var texture_vertex_shader = array.findShader('texture_vertex_shader');
+        var texture_fragment_shader = array.findShader('texture_fragment_shader');
+
+        // 获取canvas dom对象
+        var canvas = document.getElementById('webgl');
+
+        // get webglRenderingContext for webgl
+        var gl = getWebGLContext(canvas);
+        if (!gl) {
+            console.log('failed to get the rendering context for WebGL');
+            return false;
+        }
+
+        // Initialize shaders
+        var singleProgram = createProgram(gl, single_vertex_shader, single_fragment_shader);
+        var textureProgram = createProgram(gl, texture_vertex_shader, texture_fragment_shader);
+
+        if (!singleProgram || !textureProgram) {
+            console.log('failed to intialize shaders');
+            return false;
+        }
+
+        // 获取 singleProgram 中的 attribute 和 uniform 变量存储位置
+        singleProgram.a_Position = gl.getAttribLocation(singleProgram, 'a_Position');
+        singleProgram.a_Normal = gl.getAttribLocation(singleProgram, 'a_Normal');
+        singleProgram.u_MvpMatrix = gl.getUniformLocation(singleProgram, 'u_MvpMatrix');
+        singleProgram.u_NormalMatrix = gl.getUniformLocation(singleProgram, 'u_NormalMatrix');
+
+        // 获取 textureProgram 中的 attribute 和 uniform 变量存储位置
+        textureProgram.a_Position = gl.getAttribLocation(textureProgram, 'a_Position');
+        textureProgram.a_Normal = gl.getAttribLocation(textureProgram, 'a_Normal');
+        textureProgram.a_TexCoord = gl.getAttribLocation(textureProgram, 'a_TexCoord');
+        textureProgram.u_MvpMatrix = gl.getUniformLocation(textureProgram, 'u_MvpMatrix');
+        textureProgram.u_NormalMatrix = gl.getUniformLocation(textureProgram, 'u_NormalMatrix');
+        textureProgram.u_Sampler = gl.getUniformLocation(textureProgram, 'u_Sampler');
+
+        // 判断是否已经获取到存储地址
+        if (singleProgram.a_Position < 0 ||
+            singleProgram.a_Normal < 0 ||
+            !singleProgram.u_MvpMatrix ||
+            !singleProgram.u_NormalMatrix ||
+            textureProgram.a_Position < 0 ||
+            textureProgram.a_Normal < 0 ||
+            textureProgram.a_TexCoord < 0 ||
+            !textureProgram.u_MvpMatrix ||
+            !textureProgram.u_NormalMatrix ||
+            !textureProgram.u_Sampler
+        ) {
+            console.log('failed to get the storage location of attribute or uniform variabe');
+            return false;
+        }
+
+        // 设置顶点信息
+        var cube = initVertexBuffers(gl);
+        if (!cube) {
+            console.log('failed to set the vertex information');
+            return false;
+        }
+
+        var texture = initTextures(gl, textureProgram);
+        if (!texture) {
+            console.log('failed to intialize the texture.');
+            return false;
+        }
+
+        gl.enable(gl.DEPTH_TEST);
+        gl.clearColor(0.0, 0.5, 0.5, 1.0);
+
+        var viewProjMatrix = new Matrix4();
+        viewProjMatrix.setPerspective(30.0, canvas.width / canvas.height, 1.0, 100.0)
+        viewProjMatrix.lookAt(0.0, 0.0, 15.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+
+        var currentAngle = 0.0;
+        var tick = function () {
+            currentAngle = animate(currentAngle);
+
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+            drawSingleCube(gl, singleProgram, cube, -2.0, currentAngle, viewProjMatrix);
+
+            drawTexCube(gl, textureProgram, cube, texture, 2.0, currentAngle, viewProjMatrix);
+
+            window.requestAnimationFrame(tick, canvas);
+
+        }
+
+        tick();
+
+    }
+
+    var ANGLE_STEP = 30;
+
+        var last = Date.now();
+
+        function animate(angle) {
+
+            var now = Date.now();
+            var elapsed = now - last;
+
+            last = now;
+
+            var newAngle = angle + (ANGLE_STEP * elapsed) / 1000.0;
+
+            return newAngle % 360;
+
+        }
+
+    // set the vertex information
+    function initVertexBuffers(gl) {
+
+        var vertices = new Float32Array([   // Vertex coordinates
+            1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0,    // v0-v1-v2-v3 front
+            1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0, -1.0, 1.0, 1.0, -1.0,    // v0-v3-v4-v5 right
+            1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, 1.0,    // v0-v5-v6-v1 up
+            -1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, 1.0,    // v1-v6-v7-v2 left
+            -1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, -1.0, 1.0, -1.0, -1.0, 1.0,    // v7-v4-v3-v2 down
+            1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0     // v4-v7-v6-v5 back
+        ]);
+
+        var normals = new Float32Array([   // Normal
+            0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0,     // v0-v1-v2-v3 front
+            1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0,     // v0-v3-v4-v5 right
+            0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0,     // v0-v5-v6-v1 up
+            -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0,     // v1-v6-v7-v2 left
+            0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0,     // v7-v4-v3-v2 down
+            0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0      // v4-v7-v6-v5 back
+        ]);
+
+        var texCoords = new Float32Array([   // Texture coordinates
+            1.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0,    // v0-v1-v2-v3 front
+            0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0,    // v0-v3-v4-v5 right
+            1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.0,    // v0-v5-v6-v1 up
+            1.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0,    // v1-v6-v7-v2 left
+            0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,    // v7-v4-v3-v2 down
+            0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0     // v4-v7-v6-v5 back
+        ]);
+
+        var indices = new Uint8Array([        // Indices of the vertices
+            0, 1, 2, 0, 2, 3,    // front
+            4, 5, 6, 4, 6, 7,    // right
+            8, 9, 10, 8, 10, 11,    // up
+            12, 13, 14, 12, 14, 15,    // left
+            16, 17, 18, 16, 18, 19,    // down
+            20, 21, 22, 20, 22, 23     // back
+        ]);
+
+        var obj = new Object();
+
+        obj.vertexBuffer = initArrayBufferForLaterUse(gl, vertices, 3, gl.FLOAT);
+        obj.normalBuffer = initArrayBufferForLaterUse(gl, normals, 3, gl.FLOAT);
+        obj.texCoordBuffer = initArrayBufferForLaterUse(gl, texCoords, 2, gl.FLOAT);
+        obj.indexBuffer = initElementArrayBufferForLaterUse(gl, indices, gl.UNSIGNED_BYTE);
+
+        if (!obj.vertexBuffer ||
+            !obj.normalBuffer ||
+            !obj.texCoordBuffer ||
+            !obj.indexBuffer) {
+            return null;
+        }
+
+        obj.numIndices = indices.length;
+
+        // 取消对缓冲区的绑定
+        gl.bindBuffer(gl.ARRAY_BUFFER, null);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+
+        return obj;
+
+    }
+
+    // 初始化纹理
+    function initTextures(gl, program) {
+
+        // 创建纹理对象
+        var texture = gl.createTexture();
+        if (!texture) {
+            console.log('failed to create the texture object');
+            return null;
+        }
+
+        // 创建一个图片对象
+        var image = new Image();
+
+        if (!image) {
+            console.log('failed to create the image object');
+            return null;
+        }
+
+        image.onload = function () {
+
+            // 写入照片数据到image对象
+            gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
+            gl.activeTexture(gl.TEXTURE0);//激活 0号纹理单元
+            gl.bindTexture(gl.TEXTURE_2D, texture);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+
+
+            // 开启0号纹理单元通道，到取样器
+            gl.useProgram(program);
+            gl.uniform1i(program.u_Sampler, 0);
+
+            // 解绑纹理对象
+            gl.bindTexture(gl.TEXTURE_2D, null);
+        }
+
+        image.src = '../resources/ubuntu.jpg';
+
+        return texture;
+
+    }
+
+    function drawSingleCube(gl, program, obj, x, angle, viewProjMatrix) {
+
+        // 使用这个程序对象
+        gl.useProgram(program);
+
+        // 分配缓冲区对象并开启attribute变量
+        initAttributeVariable(gl, program.a_Position, obj.vertexBuffer);
+        initAttributeVariable(gl, program.a_Normal, obj.normalBuffer);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, obj.indexBuffer);
+
+        // 开始绘制
+        drawCube(gl, program, obj, x, angle, viewProjMatrix)
+
+    }
+
+    function drawTexCube(gl, program, obj, texture, x, angle, viewProjMatrix) {
+
+        // 使用这个缓冲区对象
+        gl.useProgram(program);
+
+        // 分配缓冲区对象并开启attribute变量
+        initAttributeVariable(gl, program.a_Position, obj.vertexBuffer);
+        initAttributeVariable(gl, program.a_Normal, obj.normalBuffer);
+        initAttributeVariable(gl, program.a_TexCoord, obj.texCoordBuffer);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, obj.indexBuffer);
+
+        //激活并将纹理对象绑定到0号纹理单元
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+
+        drawCube(gl, program, obj, x, angle, viewProjMatrix);
+    }
+
+    var g_modelMatrix = new Matrix4();
+    var g_mvpMatrix = new Matrix4();
+    var g_normalMatrix = new Matrix4();
+
+    function drawCube(gl,  program, obj, x, angle, viewProjMatrix) {
+
+        // 计算模型矩阵
+        g_modelMatrix.setTranslate(x, 0.0, 0.0);
+        g_modelMatrix.rotate(20.0, 1.0, 0.0, 0.0);
+        g_modelMatrix.rotate(angle, 0.0, 1.0, 0.0);
+
+        // 计算法线变换矩阵
+        g_normalMatrix.setInverseOf(g_modelMatrix);
+        g_normalMatrix.transpose();
+        gl.uniformMatrix4fv(program.u_NormalMatrix, false, g_normalMatrix.elements);
+
+        // 计算模型视图投影矩阵
+        g_mvpMatrix.set(viewProjMatrix);
+        g_mvpMatrix.multiply(g_modelMatrix);
+        gl.uniformMatrix4fv(program.u_MvpMatrix, false, g_mvpMatrix.elements);
+
+        gl.drawElements(gl.TRIANGLES, obj.numIndices, obj.indexBuffer.type, 0);
+
+    }
+
+    function initAttributeVariable(gl, a_attribute, buffer) {
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        gl.vertexAttribPointer(a_attribute, buffer.num, buffer.type, false, 0, 0);
+        gl.enableVertexAttribArray(a_attribute);
+    }
+
+    // 创建缓冲区对象
+    function initArrayBufferForLaterUse(gl, data, num, type) {
+        // 创建缓冲区对象
+        var buffer = gl.createBuffer();
+
+        if (!buffer) {
+            console.log('failed to create the buffer object');
+            return null;
+        }
+
+        // write data into the buffer object
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+
+        buffer.num = num;
+        buffer.type = type;
+
+        return buffer;
+
+    }
+
+    // 创建带顶点索引的缓冲区对象
+    function initElementArrayBufferForLaterUse(gl, data, type) {
+
+        var buffer = gl.createBuffer();
+        if (!buffer) {
+            console.log('failed to create the buffer object');
+            return null;
+        }
+
+        // write data into buffer object
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffer);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, data, gl.STATIC_DRAW);
+
+        buffer.type = type;
+
+        return buffer;
+
+    }
+
+</script>
+
+</html>

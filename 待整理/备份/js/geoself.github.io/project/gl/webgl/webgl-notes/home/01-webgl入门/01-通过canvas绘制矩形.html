@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>使用 canvas 绘制一个矩形</title>
+    <link rel="stylesheet" href="../css/common.css">
+</head>
+
+<body>
+    <canvas id="example" width="512" height="512"></canvas>
+</body>
+<script>
+
+    var canvas = document.getElementById('example');
+
+    var ctx = canvas.getContext('2d');
+    console.log(ctx);
+
+    // 错误检查 如果 ctx 是null 就说明获取失败
+    if (ctx == null) return;
+
+    var w = ctx.canvas.width;
+    var h = ctx.canvas.height;
+
+    ctx.fillStyle = 'rgba(255, 0, 255, 0.5)';
+    ctx.fillRect(w / 2 - 200, h / 2 - 100, 400, 200);
+
+</script>
+
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Use correct character set. -->
+    <meta charset="utf-8">
+    <!-- Tell IE to use the latest, best version. -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- Make the application on mobile take up the full browser screen and disable user scaling. -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    <title>Hello World!</title>
+    <script src="../Build/CesiumUnminified/Cesium.js"></script>
+    <style>
+        @import url(../Build/CesiumUnminified/Widgets/widgets.css);
+        html,
+        body,
+        #cesiumContainer {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+        <div id="cesiumContainer">
+        <div id="cesiumxin" style="position:fixed;left:0;z-index:99"><a href="http://cesium.xin" style="color:aliceblue;text-decoration:none">cesium中文网 http://cesium.xin </a></div>
+    </div>
+    <script>
+        var viewer = new Cesium.Viewer('cesiumContainer', 
+        {
+            imageryProvider: new Cesium.SingleTileImageryProvider({
+               url: '../img/worldimage.jpg'
+            }),
+
+            homeButton: false,
+            //sceneModePicker: false,
+            baseLayerPicker: false,
+            navigationHelpButton: false,
+            animation: false,
+            timeline: false,
+            fullscreenButton: false,
+            vrButton: false
+        });
+
+        var greenCylinder = viewer.entities.add({
+            name : 'Green cylinder with black outline',
+            position: Cesium.Cartesian3.fromDegrees(-100.0, 40.0, 20.0),
+            cylinder : {
+                length : 40.0,
+                topRadius : 20.0,
+                bottomRadius : 20.0,
+                material : Cesium.Color.GREEN.withAlpha(0.5),
+                outline : true,
+                outlineColor : Cesium.Color.DARK_GREEN
+            }
+        });
+
+        let pt = Cesium.Cartesian3.fromDegrees(-100.0, 40.0)
+        viewer.entities.add({
+            position : pt,
+            billboard : {
+                image : './facility.gif',
+                eyeOffset:new Cesium.CallbackProperty(function(){
+                    let position = viewer.camera.position.clone();
+                    let xoff = position.x -pt.x;
+                    let yoff = position.y -pt.y;
+                    let zoff = position.z -pt.z;
+                    //let s = Math.sqrt(yoff*yoff+xoff*xoff+zoff*zoff);
+                    let s = Math.sqrt(xoff*xoff+zoff*zoff);
+                    let tx = xoff * 22/s;
+                    let ty = yoff * 22/s;
+                    let tz = zoff * 22/s;
+                    //return new Cesium.Cartesian3(tx, ty, tz);
+                    return new Cesium.Cartesian3(tz, 20, tx);
+                }, true),
+                translucencyByDistance : new Cesium.NearFarScalar(1.5e2, 2.0, 1.5e7, 0.5),
+                //pixelOffset : new Cesium.Cartesian2(-21, -21), // default: (0, 0)
+                //eyeOffset : new Cesium.Cartesian3(21.0, 21.0, 10.0), // default
+
+                //horizontalOrigin : Cesium.HorizontalOrigin.CENTER, // default
+                //verticalOrigin : Cesium.VerticalOrigin.BOTTOM, // default: CENTER
+                scale : 3.0, // default: 1.0
+                //color : Cesium.Color.LIME, // default: WHITE
+                //rotation : Cesium.Math.PI_OVER_FOUR, // default: 0.0
+                //alignedAxis : Cesium.Cartesian3.ZERO, // default
+                //width : 100, // default: undefined
+                //height : 25 // default: undefined
+            }
+        });
+
+        viewer.zoomTo(viewer.entities);
+    </script>
+</body>
+
+</html>

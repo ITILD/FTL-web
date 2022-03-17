@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="/js/plugins/openlayers/4.65ol.css" type="text/css">
+    <script src="/js/plugins/openlayers/4.65ol.js" type="text/javascript"></script>
+    <script src="/js/plugins/openlayers/mapv.js"></script>
+    <link href="./iclient-openlayers.css" rel="stylesheet" />
+    <script src="/js/plugins/openlayers/iclient-openlayers.js"></script>
+	<script src="./jquery-3.1.1.min.js"></script>
+</head>
+<body style=" margin: 0;overflow: hidden;background: #fff;width: 100%;height:100%">
+    <div id="map" style="width: 100%;height:100%;background-color: #2F4056"></div>
+    <script type="text/javascript">
+        var dist;
+        var endYear;
+        var endMonth;
+
+        function paper(district,paperEndYear,paperEndMonth){
+            dist = district;
+            endYear = paperEndYear;
+            endMonth = paperEndMonth;
+
+        }
+
+        function loadWMTSLayer() {
+
+            let gridsetName = 'EPSG:4326';
+            let gridNames = ['EPSG:4326:0', 'EPSG:4326:1', 'EPSG:4326:2', 'EPSG:4326:3', 'EPSG:4326:4', 'EPSG:4326:5', 'EPSG:4326:6', 'EPSG:4326:7', 'EPSG:4326:8',
+                'EPSG:4326:9', 'EPSG:4326:10', 'EPSG:4326:11', 'EPSG:4326:12', 'EPSG:4326:13', 'EPSG:4326:14', 'EPSG:4326:15', 'EPSG:4326:16', 'EPSG:4326:17', 'EPSG:4326:18',
+                'EPSG:4326:19', 'EPSG:4326:20', 'EPSG:4326:21'
+            ];
+            let projection = new ol.proj.Projection({
+                code: 'EPSG:4326',
+                units: 'degrees',
+                axisOrientation: 'neu',
+                global: false
+            });
+            let resolutions = [0.703125, 0.3515625, 0.17578125, 0.087890625, 0.0439453125, 0.02197265625, 0.010986328125, 0.0054931640625, 0.00274658203125, 0.001373291015625,
+                6.866455078125E-4, 3.4332275390625E-4, 1.71661376953125E-4, 8.58306884765625E-5, 4.291534423828125E-5, 2.1457672119140625E-5, 1.0728836059570312E-5,
+                5.364418029785156E-6, 2.682209014892578E-6, 1.341104507446289E-6, 6.705522537231445E-7, 3.3527612686157227E-7
+            ];
+
+            let source = new ol.source.WMTS({
+                crossOrigin: 'anonymous', //跨域
+                url: 'http://192.168.0.253:8081/geoserver/gwc/service/wmts',
+                layer: 'Map:Map-Temp-dalian',
+                matrixSet: gridsetName,
+                format: "image/png",
+                projection: projection,
+                tileGrid: new ol.tilegrid.WMTS({
+                    tileSize: [256, 256],
+                    extent: [-180.0, -90.0, 180.0, 90.0],
+                    origin: [-180.0, 90.0],
+                    resolutions: resolutions,
+                    matrixIds: gridNames
+                }),
+                style: '',
+                wrapX: true
+            });
+
+            let tile = new ol.layer.Tile({
+                source: source
+            });
+            return tile
+        }
+
+        var map = new ol.Map({
+            target: 'map',
+            layers: [loadWMTSLayer()
+            ],
+            view: new ol.View({
+                center: [121.69,39.49],
+                zoom: 9.5,
+                projection: 'EPSG:4326'
+            })
+        });
+        var timeData = [];
+        var lineList = [];
+
+
+        load();
+        function load(){
+            line();
+            productionPoint();
+            operatePoint();
+        }
+        //线
+        function line(){
+            $.ajax({
+                type: 'get',
+                url: '/analysisScreen/paperScreen/paperLineList',
+                dataType: 'json',
+                data:{
+                    'district': dist,
+                    'paperEndYear': endYear,
+                    'paperEndMonth': endMonth
+                },
+                success: function (data) {
+                    if (data){
+                        let dataSet = new mapv.DataSet(convertlineListData(data));
+                        let mapvOptions = {
+                            strokeStyle: 'rgba(55,50,250,0.3)',
+                            globalCompositeOperation: 'lighter',
+                            shadowColor: 'rgba(55, 50, 250, 0.5)',
+                            methods: {
+                                click: function (item) {
+                                }
+                            },
+                            gradient: {0: 'rgba(55, 50, 250, 0)', 1: 'rgba(55, 50, 250, 1)'},
+                            lineWidth: .5,
+                            draw: 'intensity',
+                        };
+
+                        let options = {
+                            map: map, dataSet: dataSet, mapvOptions: mapvOptions, attributions: ''
+                        };
+
+
+                        map.addLayer(new ol.layer.Image({
+                            source: new ol.source.Mapv(options)
+                        }));
+                        //动画
+                        let dataSetMove = new mapv.DataSet(curive(data,50));
+
+                        var optionsMove = {
+                            fillStyle: 'rgba(255, 250, 250, 0.9)',
+                            size: .5,
+                            animation: {
+                                type: 'time',
+                                stepsRange: {
+                                    start: 0,
+                                    end: 50
+                                },
+                                trails: 1,
+                                duration: 5,
+                            },
+                            draw: 'simple'
+                        }
+
+                        var mapvOptionsMove = {
+                            map: map,
+                            dataSet: dataSetMove,
+                            mapvOptions: optionsMove
+                        };
+                    var  aaa  = new ol.layer.Image({
+                            source: new ol.source.Mapv(mapvOptionsMove)
+                        })
+
+                      map.addLayer(aaa);
+                    // map.removeLayer(aaa);
+
+                    }
+                }
+            });
+        }
+
+        //产废企业点
+        function productionPoint(){
+    $.ajax({
+        type: 'get',
+        url: '/analysisScreen/paperScreen/paperProductionList',
+        dataType: 'json',
+        data:{
+            "districtId": '1',
+            "paperEndYear": "2021",
+        },
+        success: function (data) {
+            if (data){
+                let productionDate = [];
+                for(var i = 0;i<data.length;i++){
+                    productionDate.push({
+                        geometry: {
+                            type: 'Point',
+                            coordinates: [parseFloat(data[i].productionLon), parseFloat(data[i].productionLat)]
+                        },
+                        text: data[i].companyName
+                    });
+                }
+
+
+                var dataSetProduction = new mapv.DataSet(productionDate);
+                var optionsProduction = {
+                    fillStyle: 'rgba(255, 50, 50, 0.6)',
+                    shadowColor: 'rgba(255, 50, 50, 1)',
+                    shadowBlur: 30,
+                    globalCompositeOperation: 'lighter',
+                    methods: {
+                        click: function (item) {
+                            console.log(item);
+                        }
+                    },
+                    size: 1,
+                    // updateImmediate: true,
+                    draw: 'simple'
+                }
+
+                var mapvOptionsProduction = {
+                    map: map,
+                    dataSet: dataSetProduction,
+                    mapvOptions: optionsProduction
+                };
+
+                map.addLayer(new ol.layer.Image({
+                    source: new ol.source.Mapv(mapvOptionsProduction)
+                }));
+
+            }
+        }
+    });
+}
+
+        //经营企业点
+        function operatePoint(){
+            $.ajax({
+                type: 'get',
+                url: '/analysisScreen/paperScreen/paperOperateList',
+                dataType: 'json',
+                data:{
+                    "districtId": '1',
+                    "paperEndYear": "2021",
+                },
+                success: function (data) {
+                    if (data){
+                        let operateListDate = [];
+                        for(var i = 0;i<data.length;i++){
+                            operateListDate.push({
+                                geometry: {
+                                    type: 'Point',
+                                    coordinates: [parseFloat(data[i].operateLon), parseFloat(data[i].operateLat)]
+                                },
+                                text: data[i].companyName
+                            });
+                        }
+
+
+                        var dataSetOperate = new mapv.DataSet(operateListDate);
+                        var optionsOperate = {
+                            fillStyle: 'rgb(6,252,6)',
+                            shadowColor: 'rgb(0,255,0)',
+                            shadowBlur: 30,
+                            globalCompositeOperation: 'lighter',
+                            methods: {
+                                click: function (item) {
+                                    console.log(item);
+                                }
+                            },
+                            size: 6,
+                            // updateImmediate: true,
+                            draw: 'simple'
+                        }
+                        //文字
+                        var optionsOperateText = {
+                            fillStyle: 'rgb(6,252,6)',
+                            shadowColor: 'rgb(0,255,0)',
+                            shadowBlur: 30,
+                            globalCompositeOperation: 'lighter',
+                            methods: {
+                                click: function (item) {
+                                    console.log(item);
+                                }
+                            },
+                            size: 6,
+                            // avoid: true,
+
+                            zIndex:2,
+                            // updateImmediate: true,
+                            draw: 'text'
+                        }
+
+                        var mapvOptionsOperate = {
+                            map: map,
+                            dataSet: dataSetOperate,
+                            mapvOptions: optionsOperate
+                        };
+
+                        map.addLayer(new ol.layer.Image({
+                            source: new ol.source.Mapv(mapvOptionsOperate)
+                        }));
+
+                        var mapvOptionsText = {
+                            map: map,
+                            dataSet: dataSetOperate,
+                            mapvOptions: optionsOperateText
+                        };
+                      // var companyName =  map.addLayer(new ol.layer.Image({
+                      //       source: new ol.source.Mapv(mapvOptionsText)
+                      //   }));
+                      // var level = map.getView().getZoom()
+                      // if(level > 10){
+                      //     companyName.show();
+                      // }else {companyName.hide();}
+                      //
+                      // map.addEventListener('zoomend',function (){
+                      //     var level = map.getView().getZoom()
+                      //     if(companyName){
+                      //         if(level > 10){
+                      //             companyName.show();
+                      //         }else{
+                      //             companyName.hide();
+                      //         }
+                      //     }
+                      // })
+
+                    }
+                }
+            });
+        }
+
+        // 线数据转换数据
+        function convertlineListData(data) {
+            lineList = [];
+            for(let i = 0; i<data.length;i++){
+                var line = {
+                    geometry: {
+                        type: 'LineString',
+                        coordinates: [[parseFloat(data[i].productionLon), parseFloat(data[i].productionLat)],
+                            [parseFloat(data[i].operateLon), parseFloat(data[i].operateLat)]]
+                    },
+                    count: 100 * Math.random()
+                };
+
+                lineList.push(line);
+            }
+            return lineList;
+        }
+
+        // 移动点数据转换（50）
+        function curive(data, n) {
+           timeData =[];
+           for(let i = 0; i<data.length;i++){
+               var delLng = (parseFloat(data[i].operateLon) - parseFloat(data[i].productionLon)) / n;
+               var delLat = (parseFloat(data[i].operateLat) - parseFloat(data[i].productionLat)) / n;
+
+               for (var j = 0; j < n; j++) {
+                   var pointNLng = parseFloat(data[i].productionLon) + delLng * j;
+                   var pointNLat = parseFloat(data[i].productionLat) + delLat * j;
+                   timeData.push({
+                       geometry: {
+                           type: 'Point',
+                           coordinates: [pointNLng, pointNLat],
+                       },
+                       count: 1,
+                       time: j
+                   });
+               }
+           }
+           return timeData;
+       }
+    </script>
+</body>
+</html>

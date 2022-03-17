@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>绘制一个点</title>
+    <link rel="stylesheet" href="../css/common.css">
+</head>
+
+<body>
+<canvas id="webgl" width="512" height="512"></canvas>
+</body>
+<script src="../lib/webgl-utils.js"></script>
+<script src="../lib/webgl-debug.js"></script>
+<script src="../lib/cuon-utils.js"></script>
+
+
+<!-- 顶点着色器代码 -->
+<script id="vertexShader" type="x-shader/x-vertex">
+    void main() {
+        gl_Position = vec4(0.0, 0.0, 0.0, 1.0);
+        gl_PointSize = 10.0;
+    }
+</script>
+
+<!-- 片元着色器代码 -->
+<script id="fragmentShader" type="x-shader/x-fragment">
+    void main() {
+        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+    }
+</script>
+<script>
+    (function () {
+
+        // 获取canvas对象
+        var canvas = document.getElementById('webgl');
+
+        // 获取webgl 上下文对象
+        var gl = getWebGLContext(canvas);
+
+        // 顶点着色器
+        var vertex_shader_source = document.getElementById('vertexShader').innerText;
+
+        // 片元着色器
+        var fragment_shader_source = document.getElementById('fragmentShader').innerText;
+
+        // 初始化着色器
+        if (!initShaders(gl, vertex_shader_source, fragment_shader_source)) {
+            console.log('初始化着色器失败！');
+            return false;
+        }
+
+        // 预定清除颜色
+        gl.clearColor(0.0, 0.5, 0.5, 1.0);
+
+        // 清除颜色缓冲区
+        gl.clear(gl.COLOR_BUFFER_BIT);
+
+        // 开始绘制
+        gl.drawArrays(gl.POINTS, 0, 1);
+
+    }());
+
+
+</script>
+
+</html>

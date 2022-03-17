@@ -1,0 +1,15 @@
+.view {
+    margin-top: 30px;
+    margin-left: 30px;
+}
+
+.view li {
+    list-style: none;
+    margin-top: 10px;
+    font-size: 15px;
+    color: #1296DB;
+}
+.view span {
+    font-size: 20px;
+    font-weight: bold;
+}

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="./lppandFox_log32.png" />
+  <title>template</title>
+  <style>
+    html,
+    body,
+    #mainContainer {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+     
+    }
+    .main{
+      background-color: grey;
+    }
+  </style>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/cesium@1.80.0/Build/Cesium/Cesium.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/cesium@1.80.0/Build/Cesium/Widgets/widgets.css"
+      rel="stylesheet"
+    /> -->
+  <!-- work -->
+  <!-- <link href="./css/mainStyle.css" rel="stylesheet" /> -->
+  <script src="../usual_lib/datgui/dat.gui.min.js"></script>
+  <link href="../usual_lib/datgui/dat.gui.css" rel="stylesheet" />
+</head>
+
+<body>
+  <div id="mainContainer" class="main"></div>
+  <div id="datGui"></div>
+
+  <!-- <div style="left: 10px" class="leftWorkListBox"></div> -->
+
+  <!--------------------------------------------------- 统一测试 --------------------------------------------------->
+  <!-- 初始化 -->
+  <script src="./TemplateControls/DatGuiHelp.js"></script>
+  <script src="./work/worklist/MainControl.js"></script>
+  <script src="./work/worklist/ControlA0.js"></script>
+  <script src="./work/mainQuick.js"></script>
+  <script src="./work/main.js" type="module"></script>
+  <!---------------------------------------------------  local外部js库 --------------------------------------------------->
+  <!-- <script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script> -->
+
+
+  <!-- GEO -->
+  <!-- <script src="lib/geo/turf.min.js"></script> -->
+</body>
+
+</html>
+
+<!-- 
+<template>
+  <div>
+    <canvas id="CADMain_Start" class="Index2dwith3d"></canvas>
+    <div id="datGui"></div>
+  </div>
+</template>
+
+<script>
+
+// -------LIB_UI
+import { ref, reactive, onMounted } from 'vue'
+
+
+import '../../../../assets/css/index/datgui.css'
+import { test } from '../../../../api/App/Templates/GL/TemplateControls/todo/test.js'
+import { MainControl } from '../../../../api/App/Templates/GL/TemplateControls/datguiControl/MainControl.js'
+
+export default {
+  name: 'test',
+  props: {
+  },
+  setup(props) {
+    const getViewer = async () => {
+      // test()
+      MainControl()
+    }
+
+    onMounted(getViewer)
+
+    return {
+    }
+  }
+}
+</script>
+
+
+<style>
+.Index2dwith3d {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+</style> -->
