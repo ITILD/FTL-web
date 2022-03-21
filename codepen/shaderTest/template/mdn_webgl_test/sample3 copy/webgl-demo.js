@@ -43,7 +43,14 @@ function main() {
 
   // Initialize a shader program; this is where all the lighting
   // for the vertices and so forth is established.
-  const shaderProgram = initShaderProgram(gl, vsSource, fsSource);
+  const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vsSource);
+  const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
+  // 编译后 然后我们将这两个着色器 link（链接）到一个 program（着色程序）
+  // Create the shader program
+  const shaderProgram = gl.createProgram();
+  gl.attachShader(shaderProgram, vertexShader);
+  gl.attachShader(shaderProgram, fragmentShader);
+  gl.linkProgram(shaderProgram);
 
   // Collect all the info needed to use the shader program.
   // Look up which attributes our shader program is using
@@ -83,7 +90,7 @@ function initBuffers(gl) {
 
   // Select the positionBuffer as the one to apply buffer
   // operations to from here out.
-  //gl.ARRAY_BUFFER 全局绑定缓冲（视为全局变量）
+
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
   // Now create an array of positions for the square.
@@ -124,10 +131,10 @@ function initBuffers(gl) {
 // Draw the scene.
 //
 function drawScene(gl, programInfo, buffers) {
-  gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque/从透明到黑色，完全不透明
-  gl.clearDepth(1.0);                 // Clear everything清楚一切
-  gl.enable(gl.DEPTH_TEST);           // Enable depth testing开启深度测试
-  gl.depthFunc(gl.LEQUAL);            // Near things obscurethings far 近物遮远物
+  gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
+  gl.clearDepth(1.0);                 // Clear everything
+  gl.enable(gl.DEPTH_TEST);           // Enable depth testing
+  gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
 
   // Clear the canvas before we start drawing on it.
 
@@ -256,15 +263,15 @@ function initShaderProgram(gl, vsSource, fsSource) {
 // compiles it.
 //
 function loadShader(gl, type, source) {
-  const shader = gl.createShader(type);// 创建着色器对象
+  const shader = gl.createShader(type);
 
   // Send the source to the shader object
 
-  gl.shaderSource(shader, source);// 提供数据源
+  gl.shaderSource(shader, source);
 
   // Compile the shader program
 
-  gl.compileShader(shader);// 编译 -> 生成着色器
+  gl.compileShader(shader);
 
   // See if it compiled successfully
 
