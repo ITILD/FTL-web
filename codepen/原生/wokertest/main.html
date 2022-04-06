@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      onload = () => {
+        // 创建一个 Worker 线程，用于上报数据，传入这个 Worker 对应的脚本文件
+        const worker = new Worker('reportWorker.ts')
+
+        // 主线程向 Worker 线程发送消息，让 Worker 线程从 indexedDB 读取 count 条数据
+        worker.postMessage({
+          type: WorkerReportType.ReadEventTblStart,
+          data: count,
+        })
+
+        // 主线程监听来自 Worker 的消息
+        worker.onmessage = (event) => {
+          const { type, data } = event.data
+          // // 对不同类型的消息做不同处理
+          // switch (type) {
+          //   case WorkerReportType.ReadEventTblFinish:
+          //     console.log('从worker中接收的数据', data);
+          //     // ...
+          //     break;
+          //   case ...
+        }
+      }
+    </script>
+  </body>
+</html>

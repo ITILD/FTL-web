@@ -143,6 +143,8 @@ async function getFile() {
 
 
 async function getDir() {
+
+  
   console.log('获取文件目录test')
 
   let fileHandle;

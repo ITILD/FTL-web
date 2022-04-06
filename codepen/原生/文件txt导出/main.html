@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title> -->
+  </head>
+  <body>
+    <script>
+      function saveFile() {
+        // let data = document.querySelector('#text').value
+        // let data = 'tttttttttttttttttttttttttttest'
+        let jsonStr = {
+          name: '000',
+          url: '111',
+        }
+        data = JSON.stringify(jsonStr)
+        // let data = '自定义的数据内容，可以是服务端返回滴！';
+        let name = 'cdk.json'
+
+        exportRaw(data, name)
+      }
+      function exportRaw(data, name) {
+        let urlObject = window.URL || window.webkitURL || window
+        let export_blob = new Blob([data])
+        let save_link = document.createElement('a')
+        save_link.href = urlObject.createObjectURL(export_blob)
+        save_link.setAttribute('download', name)
+        // save_link.download = name
+        save_link.click()
+      }
+
+      saveFile()
+    </script>
+  </body>
+</html>

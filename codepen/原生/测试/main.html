@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title> -->
+  </head>
+  <body>
+    <script>
+      const errorMsg = 'the # is not even'
+      for (let number = 2; number <= 5; number += 1) {
+        console.log('the # is ' + number)
+        // console.assert(number % 2 === 0, { number: number, errorMsg: errorMsg })
+        // 或者使用 ES2015 对象简写:
+        console.assert(number % 2 === 0, {number, errorMsg});
+        // console.assert(false, 'the word is %s', 'foo');
+        // console.log('the word is %s try number %d', 'foo', 123);
+        console.assert(number % 2 === 0, '%d,errorMsg:"%s"',number, errorMsg);
+      }
+    </script>
+  </body>
+</html>
