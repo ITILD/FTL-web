@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title> -->
+  </head>
+  <body>
+    <script>
+      /*
+            Type	Value Range	Size in bytes	Description	Web IDL type	Equivalent C type
+            Int8Array	-128 to 127	1	8-bit two's complement signed integer	byte	int8_t
+            Uint8Array	0 to 255	1	8-bit unsigned integer	octet	uint8_t
+            Uint8ClampedArray	0 to 255	1	8-bit unsigned integer (clamped)	octet	uint8_t
+            Int16Array	-32768 to 32767	2	16-bit two's complement signed integer	short	int16_t
+            Uint16Array	0 to 65535	2	16-bit unsigned integer	unsigned short	uint16_t
+            Int32Array	-2147483648 to 2147483647	4	32-bit two's complement signed integer	long	int32_t
+            Uint32Array	0 to 4294967295	4	32-bit unsigned integer	unsigned long	uint32_t
+            Float32Array	-3.4E38 to 3.4E38 and 1.2E-38 is the min positive number	4	32-bit IEEE floating point number (7 significant digits e.g., 1.234567)	unrestricted float	float
+            Float64Array	-1.8E308 to 1.8E308 and 5E-324 is the min positive number	8	64-bit IEEE floating point number (16 significant digits e.g., 1.23456789012345)	unrestricted double	double
+            BigInt64Array	-2^63 to 2^63 - 1	8	64-bit two's complement signed integer	bigint	int64_t (signed long long)
+            BigUint64Array	0 to 2^64 - 1	8	64-bit unsigned integer	bigint	uint64_t (unsigned long long)
+
+            https://zhuanlan.zhihu.com/p/128464209
+      */
+      const buffer = new ArrayBuffer(21) //21bytes  8*21bit
+      console.log('空buffer：', buffer)
+      console.log('字节长度：', buffer.byteLength)
+      console.log('bit长度（01）：', buffer.byteLength * 8)
+      // 一个标准点 1 4 8 8  https://www.mysqlzh.com/doc/175/142.html  Point值具有X和Y坐标，每个值均用双精度值表示。
+      /* 
+
+            与POINT(1 1)对应的WKB值由下述21字节序列构成（在此，每个字节由2个十六进制数值表示）：
+            0101000000000000000000F03F000000000000F03F
+            0101000000000000000000F03F000000000000F03F
+            WKB使用1字节无符号整数、4字节无符号整数、以及8字节双精度数（IEEE 754格式）。1字节等于8比特。
+            这个2进制流可以按照WKBPoint的结构进行拆分：
+            Byte order : 01                 1
+            WKB type   : 01000000           4
+            X          : 000000000000F03F   8*8 64bit
+            Y          : 000000000000F03F
+
+            ·         字节顺序（Byte order）可以是0或1,硬件地址相关，分别表明little-endian或big-endian存储(X64)。little-endian和big-endian字节顺序也分别称为网络数据表示（NDR）和外部数据表示（XDR）。
+            ·         “WKB type”（WKB类型）是指明几何类型的代码。取值从1到7，分别表示Point、LineString、Polygon、MultiPoint、MultiLineString、MultiPolygon、和GeometryCollection。
+            ·         Point值具有X和Y坐标，每个值均用双精度值表示。
+
+            计算是先算小位数再算大位数，适合little endianne较合适,little endianness的信息在转换的时候可以保持不变，如16位数字转到16位，用big endianness的话就要移位。网络用big endianness的原因不清楚。
+      */
+      const view1 = new DataView(buffer)
+      view1.setUint8(0, 1) //1字节无符号整数
+      view1.setUint32(1, 1) // 4字节无符号整数
+      view1.setFloat64(5, 1.0) //8字节双精度数
+      view1.setFloat64(13, 1.0)
+      // 仍有缺陷 空位多
+      console.log(view1.getUint8(0))
+      console.log(view1.getUint32(1))
+      console.log(view1.getFloat64(5))
+      console.log(view1.getFloat64(13))
+      let bitArray2 = ''
+      let bitArray16 = ''
+      // web默认高位
+      for (let index = 0; index < buffer.byteLength; index++) {
+        const element2 = view1.getUint8(index).toString(2)
+        const element16 = hex_parase(view1.getUint8(index).toString(16))
+        console.log('test', view1.getUint8(index))
+        bitArray2 += element2
+        bitArray16 += element16
+      }
+      console.log('bitArray2', bitArray2)
+      console.log('%c bitArray16 little endianness:','color:#05708d;',bitArray16) //100013ff00000003ff0000000
+
+
+
+
+      bitArray2 = ''
+      bitArray16 = ''
+      // web默认高位
+      for (let index = buffer.byteLength-1; index >=0 ; index --) {
+        const element2 = view1.getUint8(index).toString(2)
+        const element16 = hex_parase(view1.getUint8(index).toString(16))
+
+        bitArray2 += element2
+        bitArray16 += element16
+      }
+      console.log('bitArray2', bitArray2)
+      console.log('%c bitArray16 little endianness:','color:#05708d;',bitArray16) //100013ff00000003ff0000000
+      
+      // 16 hex 补零
+      function hex_parase(hex) {
+        return hex.length==1?'0'+hex:hex
+      }
+    </script>
+  </body>
+</html>
