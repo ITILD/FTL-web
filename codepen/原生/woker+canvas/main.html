@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="shortcut icon" href="#" />
+  </head>
+  <body>
+    <script>
+      onload = function () {
+        const worker = new Worker('worker0.js')
+        console.time('worker0')
+        worker.onmessage = function (evt) {
+          //接收子线程消息
+          console.log(evt.data) //hello received
+          // 释放内存和避免僵尸线程
+          console.timeEnd('worker0')
+          worker.terminate()
+        }
+
+        // worker.postMessage('hello') //向子线程发送消息
+        let data = new Uint8Array(500 * 1024 * 1024)
+        worker.postMessage(data, [data.buffer])
+        // worker.postMessage(data)
+        // 传参性能下降问题
+        // https://joji.me/zh-cn/blog/performance-issue-of-using-massive-transferable-objects-in-web-worker/
+      }
+    </script>
+  </body>
+</html>

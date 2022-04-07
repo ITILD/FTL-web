@@ -1,11 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <!-- <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title> -->
+    <link rel="shortcut icon" href="#" />
   </head>
+
   <body>
     <script>
       /*
@@ -22,13 +20,9 @@
             BigInt64Array	-2^63 to 2^63 - 1	8	64-bit two's complement signed integer	bigint	int64_t (signed long long)
             BigUint64Array	0 to 2^64 - 1	8	64-bit unsigned integer	bigint	uint64_t (unsigned long long)
 
-            https://zhuanlan.zhihu.com/p/128464209
       */
-      const buffer = new ArrayBuffer(21) //21bytes  8*21bit
-      console.log('空buffer：', buffer)
-      console.log('字节长度：', buffer.byteLength)
-      console.log('bit长度（01）：', buffer.byteLength * 8)
-      // 一个标准点 1 4 8 8  https://www.mysqlzh.com/doc/175/142.html  Point值具有X和Y坐标，每个值均用双精度值表示。
+     // 一个标准点 1 4 8 8 Point值具有X和Y坐标，每个值均用双精度值表示。
+
       /* 
 
             与POINT(1 1)对应的WKB值由下述21字节序列构成（在此，每个字节由2个十六进制数值表示）：
@@ -47,16 +41,20 @@
 
             计算是先算小位数再算大位数，适合little endianne较合适,little endianness的信息在转换的时候可以保持不变，如16位数字转到16位，用big endianness的话就要移位。网络用big endianness的原因不清楚。
       */
+      let Ponit = [1.0,1.0]
+
+      const buffer = new ArrayBuffer(21) //21bytes  8*21bit
+      console.log('\n','空buffer：', buffer,'\n','字节长度：', buffer.byteLength,'\n','bit长度（01）：', buffer.byteLength * 8)
       const view1 = new DataView(buffer)
-      view1.setUint8(0, 1) //1字节无符号整数
-      view1.setUint32(1, 1) // 4字节无符号整数
-      view1.setFloat64(5, 1.0) //8字节双精度数
-      view1.setFloat64(13, 1.0)
+      view1.setUint8(0, 1,true) //1字节无符号整数    ,true小端法  第一个字节表示字节顺序。00 表示大端，01 表示小端。
+      view1.setUint32(1, 1,true) // 4字节无符号整数
+      view1.setFloat64(5, Ponit[0],true) //8字节双精度数
+      view1.setFloat64(13,Ponit[1],true)
       // 仍有缺陷 空位多
-      console.log(view1.getUint8(0))
-      console.log(view1.getUint32(1))
-      console.log(view1.getFloat64(5))
-      console.log(view1.getFloat64(13))
+      console.log(view1.getUint8(0,true))
+      console.log(view1.getUint32(1,true))
+      console.log(view1.getFloat64(5,true))
+      console.log(view1.getFloat64(13,true))
       let bitArray2 = ''
       let bitArray16 = ''
       // web默认高位
@@ -71,21 +69,6 @@
       console.log('%c bitArray16 little endianness:','color:#05708d;',bitArray16) //100013ff00000003ff0000000
 
 
-
-
-      bitArray2 = ''
-      bitArray16 = ''
-      // web默认高位
-      for (let index = buffer.byteLength-1; index >=0 ; index --) {
-        const element2 = view1.getUint8(index).toString(2)
-        const element16 = hex_parase(view1.getUint8(index).toString(16))
-
-        bitArray2 += element2
-        bitArray16 += element16
-      }
-      console.log('bitArray2', bitArray2)
-      console.log('%c bitArray16 little endianness:','color:#05708d;',bitArray16) //100013ff00000003ff0000000
-      
       // 16 hex 补零
       function hex_parase(hex) {
         return hex.length==1?'0'+hex:hex

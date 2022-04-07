@@ -33,7 +33,7 @@
 
             与POINT(1 1)对应的WKB值由下述21字节序列构成（在此，每个字节由2个十六进制数值表示）：
             0101000000000000000000F03F000000000000F03F
-            0101000000000000000000F03F000000000000F03F
+            0101000000369673D3ADF9F13F369673D3ADF9F13F
             WKB使用1字节无符号整数、4字节无符号整数、以及8字节双精度数（IEEE 754格式）。1字节等于8比特。
             这个2进制流可以按照WKBPoint的结构进行拆分：
             Byte order : 01                 1
@@ -48,10 +48,10 @@
             计算是先算小位数再算大位数，适合little endianne较合适,little endianness的信息在转换的时候可以保持不变，如16位数字转到16位，用big endianness的话就要移位。网络用big endianness的原因不清楚。
       */
       const view1 = new DataView(buffer)
-      view1.setUint8(0, 1) //1字节无符号整数
-      view1.setUint32(1, 1) // 4字节无符号整数
-      view1.setFloat64(5, 1.0) //8字节双精度数
-      view1.setFloat64(13, 1.0)
+      view1.setUint8(0, 1,true) //1字节无符号整数  默认使用大端法，true设置为小端法
+      view1.setUint32(1, 1,true) // 4字节无符号整数
+      view1.setFloat64(5, 1.123456789,true) //8字节双精度数
+      view1.setFloat64(13, 1.123456789,true)
       // 仍有缺陷 空位多
       console.log(view1.getUint8(0))
       console.log(view1.getUint32(1))
@@ -63,7 +63,7 @@
       for (let index = 0; index < buffer.byteLength; index++) {
         const element2 = view1.getUint8(index).toString(2)
         const element16 = hex_parase(view1.getUint8(index).toString(16))
-        console.log(index+':', view1.getUint8(index))
+        console.log('test', view1.getUint8(index))
         bitArray2 += element2
         bitArray16 += element16
       }
@@ -76,12 +76,13 @@
       bitArray2 = ''
       bitArray16 = ''
       // web默认高位
-      for (let index = buffer.byteLength-1; index >=0 ; index --) {
+      // for (let index = buffer.byteLength-1; index >=0 ; index --) {
+        for (let index = 0; index < buffer.byteLength; index++) {
         const element2 = view1.getUint8(index).toString(2)
         const element16 = hex_parase(view1.getUint8(index).toString(16))
 
         bitArray2 += element2
-        bitArray16 += element16
+        bitArray16 = element16 + bitArray16
       }
       console.log('bitArray2', bitArray2)
       console.log('%c bitArray16 little endianness:','color:#05708d;',bitArray16) //100013ff00000003ff0000000
