@@ -6,21 +6,8 @@ let testFunc = () => {
   // exportRaw(data, name)
   
   var polygonPoints =
-  [
-  [118.22166324000011,33.94018013200008],
-  [118.22166694800001,33.940138392000051],
-  [118.22167282000009,33.940096924000045],
-  [118.22168107000005,33.940055637000057],
-  [118.22170407500005,33.939955487000077],
-  [118.2217123260001,33.939914291000036],
-  [118.22171830600007,33.93987282300003],
-  [118.22172190500009,33.939831083000058],
-  [118.22175552400006,33.939267271000062],
-  [118.22175661300003,33.939258077000034],
-  [118.22544694300007,33.939262686000063],
-  [118.22536301900004,33.940659324000023],
-  [118.2216439660001,33.940503869000054],
-  [118.22166324000011,33.94018013200008]
+  [ [ 37.0,-115.0],
+    [33.94018013200008,118.22166324000011,10],
   ];
   var newPolygonsArray = [];
   var arrlen = polygonPoints.length;
@@ -30,14 +17,11 @@ let testFunc = () => {
       var temp = polygonPoints[i].push(0);
       var blhobj = {b:polygonPoints[i][0],l:polygonPoints[i][1],h:polygonPoints[i][2]};
       var xyz = _BLH2XYZ('wgs84',blhobj);
-      var litarr = [xyz.X,xyz.Y];
+      var litarr = [xyz.X,xyz.Y,xyz.Z];
       
       newPolygonsArray.push(litarr);
   }
   console.log("WWWWWWWWW",newPolygonsArray)
-  for(let i=0;i<newPolygonsArray.length;i++){
-      console.log(newPolygonsArray[i])
-  }
 }
 
 let dataMock = () => {
@@ -118,8 +102,11 @@ projectionTypes.bj54 = {
     e2:0.006693421622966//第一偏心率平方
 };
 projectionTypes.wgs84 = {
-    a:6378135,//长半轴
-    e2:0.00669437999013//第一偏心率平方
+    // a:6378135,//长半轴
+    a:6378137.0 ,//长半轴
+    b:6356752.3142451793,//短 cesium
+    // e2:0.00669437999013//第一偏心率平方//cesium   0.00669437999014137873879720633416
+    e2:0.00669437999014137873879720633416//第一偏心率平方//cesium   0.00669437999014137873879720633416
 };
 
 var myparams = {
@@ -142,7 +129,7 @@ function coordinateTransfUse7params(sourceType,targetType,params,blh){
     console.log(blh2);
 }
 
-function _BLH2XYZ(projectionType,blhObj){//将大地坐标喜欢换为空间直角坐标系
+function _BLH2XYZ(projectionType,blhObj){//将大地坐标换为空间直角坐标系
     var e2 = projectionTypes[projectionType].e2;//第一偏心率平方值
     var a = projectionTypes[projectionType].a;//长半轴
     var N = a / Math.sqrt(1 - e2 * Math.sin(blhObj.b * pi_180) * Math.sin(blhObj.b * pi_180));
