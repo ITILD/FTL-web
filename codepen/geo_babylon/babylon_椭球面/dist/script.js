@@ -1,3 +1,14 @@
+let wgs84 = {
+  // a:6378135,//长半轴
+  // a:6378137.0 ,//长半轴
+  a: 50000.0, //长半轴
+  b: 6356752.3142451793, //短 cesium
+  // e2:0.00669437999013//第一偏心率平方//cesium   0.00669437999014137873879720633416
+  e2: 0.00669437999014137873879720633416 //第一偏心率平方//cesium   0.00669437999014137873879720633416
+};
+// https://www.bbsmax.com/A/GBJrk64E50/
+
+
 var canvas = document.getElementById("renderCanvas");
 
 var startRenderLoop = function (engine, canvas) {
@@ -19,17 +30,21 @@ var createDefaultEngine = function () {
   });
 };
 var createScene = function () {
+
   // This creates a basic Babylon Scene object (non-mesh)
   var scene = new BABYLON.Scene(engine);
-
+  // 使用右手坐标系
+  scene.useRightHandedSystem = true;
   // This creates and positions a free camera (non-mesh)
-  var camera = new BABYLON.FreeCamera(
-    "camera1",
-    // new BABYLON.Vector3(0, 5, -10),
-    new BABYLON.Vector3(0, 6000, 0),
-    scene
-  );
-
+  // var camera = new BABYLON.FreeCamera(
+  //   "camera1",
+  //   // new BABYLON.Vector3(0, 5, -10),
+  //   // new BABYLON.Vector3(0,0, wgs84.a),
+  //   new BABYLON.Vector3(wgs84.a,wgs84.a, wgs84.a),
+  //   scene
+  // );
+ //由FreeCamera改为新版本的“通用相机”，据说可以默认支持各种操作设备。
+  var camera = new BABYLON.UniversalCamera("FreeCamera", new BABYLON.Vector3(wgs84.a, wgs84.a, wgs84.a), scene);
   // This targets the camera to scene origin
   camera.setTarget(BABYLON.Vector3.Zero());
 
@@ -51,19 +66,20 @@ var createScene = function () {
     "sphere",
 
     // { diameterX: 6378137.0,diameterY:6378137.0,diameterZ:6356752.3142451793, segments: 32 },
-    { diameterX: 63.0,diameterY:63.0,diameterZ:63.3142451793, segments: 32 },
+    { diameterX: wgs84.a, diameterY: wgs84.a, diameterZ: wgs84.a, segments: 32 },
     scene
   );
 
-  // Move the sphere upward 1/2 its height
-  sphere.position.y = 1;
+  // // Move the sphere upward 1/2 its height
+  // // sphere.position.y = 1;
+  sphere.position.y = 0;
 
   // Our built-in 'ground' shape.
-  var ground = BABYLON.MeshBuilder.CreateGround(
-    "ground",
-    { width: 600, height: 600 },
-    scene
-  );
+  // var ground = BABYLON.MeshBuilder.CreateGround(
+  //   "ground",
+  //   { width: 600, height: 600 },
+  //   scene
+  // );
 
   return scene;
 };
@@ -83,6 +99,13 @@ window.initFunction = async function () {
   if (!engine) throw "engine should not be null.";
   startRenderLoop(engine, canvas);
   window.scene = createScene();
+
+  // BabylonHelp.showAxis(800)
+  BabylonHelp.showAxisXYZ(wgs84.a)
+
+
+
+
 };
 //
 initFunction().then(() => {
@@ -93,3 +116,13 @@ initFunction().then(() => {
 window.addEventListener("resize", function () {
   engine.resize();
 });
+
+
+// const myPoints = [
+//   new BABYLON.Vector3(-2, -1, 0),
+//   new BABYLON.Vector3(0, 1, 0),
+//   new BABYLON.Vector3(2, -1, 0),
+// ]
+
+// const lines = BABYLON.MeshBuilder.CreateLines("lines", {points: myPoints});
+// BabylonHelp.showAxis(800)
