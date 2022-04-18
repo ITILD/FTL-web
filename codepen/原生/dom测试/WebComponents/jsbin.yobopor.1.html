@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<!--
+Created using JS Bin
+http://jsbin.com
+
+Copyright (c) 2022 by ruanyf (http://jsbin.com/yobopor/1/edit)
+
+Released under the MIT license: http://jsbin.mit-license.org
+-->
+<meta name="robots" content="noindex" />
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>JS Bin</title>
+  </head>
+
+  <body>
+    <user-card
+      image="https://himg.bdimg.com/sys/portraitn/item/88b7c8d3b7cad4edb5c474696d6fbefd0733"
+      name="User Name"
+      email="yourmail@some-email.com"
+    ></user-card>
+
+    <script>
+      var wrapper = document.createElement('div')
+      wrapper.innerHTML = `
+         <template id="userCardTemplate">
+    <style>
+      /* <template>样式里面的:host伪类，指代自定义元素本身。 */
+      :host {
+        display: flex;
+        align-items: center;
+        width: 450px;
+        height: 180px;
+        background-color: #d4d4d4;
+        border: 1px solid #d5d5d5;
+        box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+        border-radius: 3px;
+        overflow: hidden;
+        padding: 10px;
+        box-sizing: border-box;
+        font-family: 'Poppins', sans-serif;
+      }
+
+      .image {
+        flex: 0 0 auto;
+        width: 160px;
+        height: 160px;
+        vertical-align: middle;
+        border-radius: 5px;
+      }
+
+      .container {
+        box-sizing: border-box;
+        padding: 20px;
+        height: 160px;
+      }
+
+      .container>.name {
+        font-size: 20px;
+        font-weight: 600;
+        line-height: 1;
+        margin: 0;
+        margin-bottom: 5px;
+      }
+
+      .container>.email {
+        font-size: 12px;
+        opacity: 0.75;
+        line-height: 1;
+        margin: 0;
+        margin-bottom: 15px;
+      }
+
+      .container>.button {
+        padding: 10px 25px;
+        font-size: 12px;
+        border-radius: 5px;
+        text-transform: uppercase;
+      }
+    </style>
+
+    <img class="image">
+    <div class="container">
+      <p class="name"></p>
+      <p class="email"></p>
+      <button class="button">Follow John</button>
+    </div>
+  </template>
+    `
+      document.body.appendChild(wrapper)
+      // shadowRoot.appendChild(wrapper)
+      class UserCard extends HTMLElement {
+        constructor() {
+          super()
+          // var shadow = this.attachShadow({ mode: 'closed' });
+          const shadowRoot = this.attachShadow({ mode: 'closed' })
+
+          var templateElem = document.getElementById('userCardTemplate')
+          var content = templateElem.content.cloneNode(true)
+          content
+            .querySelector('img')
+            .setAttribute('src', this.getAttribute('image'))
+          content.querySelector('.container>.name').innerText =
+            this.getAttribute('name')
+          content.querySelector('.container>.email').innerText =
+            this.getAttribute('email')
+
+          shadowRoot.appendChild(content)
+   
+          this.addClick()
+        }
+        addClick() {}
+
+        connectedCallback() {} // 当组件首次被插入文档DOM时被调用
+        disconnectedCallback() {} // 当组件从文档DOM中删除时被调用
+        adoptedCallback() {} // 当组件被移动到新的文档时被调用
+        attributeChangedCallback(name, oldValue, newValue) {} // 当组件增加、删除、修改自身属性时被调用
+      }
+      window.customElements.define('user-card', UserCard)
+    </script>
+  </body>
+</html>

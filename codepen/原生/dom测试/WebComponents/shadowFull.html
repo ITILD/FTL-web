@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<!--
+Created using JS Bin
+http://jsbin.com
+
+Copyright (c) 2022 by ruanyf (http://jsbin.com/yobopor/1/edit)
+
+Released under the MIT license: http://jsbin.mit-license.org
+-->
+<meta name="robots" content="noindex" />
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>JS Bin</title>
+  </head>
+
+  <body>
+    <user-card
+      image="https://himg.bdimg.com/sys/portraitn/item/88b7c8d3b7cad4edb5c474696d6fbefd0733"
+      name="User Name"
+      email="yourmail@some-email.com"
+    ></user-card>
+
+    <script>
+     
+
+      // shadowRoot.appendChild(wrapper)
+      class UserCard extends HTMLElement {
+        constructor() {
+          super()
+          let img = document.createElement('img')
+          img.setAttribute('src', this.getAttribute('image'))
+          this.appendChild(img)
+          // this.append(img)
+          this.addClick()
+        }
+
+       
+        addClick() {}
+
+        connectedCallback() {} // 当组件首次被插入文档DOM时被调用
+        disconnectedCallback() {} // 当组件从文档DOM中删除时被调用
+        adoptedCallback() {} // 当组件被移动到新的文档时被调用
+        attributeChangedCallback(name, oldValue, newValue) {} // 当组件增加、删除、修改自身属性时被调用
+      }
+      window.customElements.define('user-card', UserCard)
+    </script>
+  </body>
+</html>

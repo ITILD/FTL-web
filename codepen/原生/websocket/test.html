@@ -43,7 +43,6 @@
   }
 
   function sendMessage() {
-
     socket.send('{"toUserId":"' + $("#toUserId").val() + '","contentText":"' + $("#contentText").val() + '"}');
     console.log('c：{"toUserId":"' + $("#toUserId").val() + '","contentText":"' + $("#contentText").val() + '"}');
   }
@@ -60,21 +59,28 @@
       e.returnValue = '关闭提示';
     }
 
+    // Cancel the event
+    e.preventDefault();
+    // Chrome requires returnValue to be set
+    e.returnValue = '自定义文本';
     // Chrome, Safari, Firefox 4+, Opera 12+ , IE 9+
     return '关闭提示';
   };
 </script>
 
 <body>
-  <p>【socket开启者的ID信息】：<div><input id="userId" name="userId" type="text" value="10"></div>
-    <p>【客户端向服务器发送的内容】：<div><input id="toUserId" name="toUserId" type="text" value="20">
-        <input id="contentText" name="contentText" type="text" value="hello websocket"></div>
-      <p></p>【操作】：<div><button onclick="openSocket()">开启socket</button></div>
-      <p></p>【操作】：<div><button onclick="closeMessage()">关闭socket</button></div>
-      <p></p>【操作】：<div><button onclick="sendMessage()">发送消息</button></div>
-      <p></p>
-      <p></p>【数据】：<div><a id="dataReturn">0</a></div>
-      <p></p>【数据数】：<div><a id="dataReturnTemp">0</a></div>
+  <p></p>【socket开启者的ID信息】：<div><input id="userId" name="userId" type="text" value="10"></div>
+  <p></p>【客户端向服务器发送的内容】：
+    <div>
+      <input id="toUserId" name="toUserId" type="text" value="20">
+      <input id="contentText" name="contentText" type="text" value="test websocket">
+    </div>
+  <p></p>【操作】：<div><button onclick="openSocket()">开启socket</button></div>
+  <p></p>【操作】：<div><button onclick="closeMessage()">关闭socket</button></div>
+  <p></p>【操作】：<div><button onclick="sendMessage()">发送消息</button></div>
+  <p></p>
+  <p></p>【数据】：<a id="dataReturn">0</a>
+  <p></p>【数据数】：<a id="dataReturnTemp">0</a>
 </body>
 
 </html>
