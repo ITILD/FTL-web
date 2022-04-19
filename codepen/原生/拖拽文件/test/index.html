@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    #content {
+      width: 500px;
+      height: 500px;
+      border: 1px solid rebeccapurple;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="content">
+    <h2>文件拖入此处解析</h2>
+  </div>
+</body>
+<script>
+  let content = document.getElementById("content");
+
+  function scanFiles(item) {
+    console.log(item)
+  }
+
+  function handleDragOver(e) {
+    e.stopPropagation();
+    e.preventDefault();
+    console.log("xxxxx")
+    // console.log(e)
+  }
+
+  function handleFileSelect(e) {
+    // e.stopPropagation();
+    e.preventDefault();
+    let item = e.dataTransfer;
+    scanFiles(e);
+
+    var files = [];
+    [].forEach.call(e.dataTransfer.files, function (file) {
+      files.push(file);
+    }, false);
+
+    for (var f of files) {
+      var reader = new FileReader();
+      reader.readAsText(f);
+      //读取文件的内容
+      reader.onload = function () {
+          console.log("结果")
+          console.log(this.result)
+      };
+
+    }
+
+
+  }
+
+  content.addEventListener("dragover", handleDragOver, false);
+  content.addEventListener("drop", handleFileSelect, false);
+</script>
+
+</html>

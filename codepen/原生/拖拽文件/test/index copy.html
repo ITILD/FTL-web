@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+	</head>
+	<body>
+		<div class="oDiv" id="oDiv">
+			<textarea rows="10" cols="50" id="outTextarea" placeholder="输入或拖拽.txt文件至框内"></textarea>
+		</div>
+	</body>
+	<script type="text/javascript">
+		var oDiv = document.getElementById('oDiv');
+		var outTextarea = document.getElementById('outTextarea');
+		
+		oDiv.addEventListener("dragenter", function(e){
+			e.stopPropagation();
+			e.preventDefault();
+		}, false);
+		
+		oDiv.addEventListener("dragover", function(e){
+			e.stopPropagation();
+			e.preventDefault();
+		}, false);
+		
+		oDiv.addEventListener("drop", function(e){
+			e.stopPropagation();
+			e.preventDefault();
+			console.log(e)
+			console.log(e.dataTransfer)
+			
+			var dt = e.dataTransfer;
+			var files = dt.files;
+		
+			handle("filelist",files);
+		}, false);
+		
+		function handle(type,files){
+      for (var f of files) {
+      var reader = new FileReader();
+      reader.readAsText(f);
+      //读取文件的内容
+      reader.onload = function () {
+          console.log("结果")
+          console.log(this.result)
+      };
+
+    }
+	
+		};
+	</script>
+</html>
