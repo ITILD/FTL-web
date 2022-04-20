@@ -1,6 +1,4 @@
 let testFunc = (data) => {
-
-  
   let fetchRes = fetch(
     "./data/smile.gif");
   // fetchRes is the promise to resolve

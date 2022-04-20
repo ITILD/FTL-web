@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>My-App</title>
+
+</head>
+
+<body>
+
+  <template id='debug'>
+    <style>
+      /* <template>样式里面的:host伪类，指代自定义元素本身。 */
+      p {
+        color: #f00;
+      }
+    </style>
+
+    <p>This is a ${this.getAttribute('value')}</p>
+    <slot></slot>
+    <p>This is a ${this.getAttribute('value')}</p>
+  </template>
+
+
+  <my-app1 value='传入属性'>标签内</my-app1>
+  <script>
+    class MyAppElement extends HTMLElement {
+      constructor() {
+        super();
+        // open：影子根的元素可以从根外部的 JavaScript 访问，例如使用Element.shadowRoot：
+        // const shadowRoot = this.attachShadow({mode:'open'});
+        const shadowRoot = this.attachShadow({ mode: 'closed' });
+
+        var templateElem = document.getElementById('debug');
+        var content = templateElem.content.cloneNode(true);
+        // content.querySelector('img').setAttribute('src', this.getAttribute('image'));
+        shadowRoot.appendChild(content);
+
+        // shadowRoot.innerHTML = this.template();
+      }
+      connectedCallback() {
+        console.log('my-app element is connected');
+      }
+      template() {
+        return `
+            <style>
+            /* <template>样式里面的:host伪类，指代自定义元素本身。 */
+                p {
+                color: #f00;
+                }
+            </style>
+
+            <p>This is a ${this.getAttribute('value')}</p>
+            <slot></slot>
+            <p>This is a ${this.getAttribute('value')}</p>
+    
+        `;
+      }
+    }
+    customElements.define('my-app1', MyAppElement);
+  </script>
+</body>
+
+</html>

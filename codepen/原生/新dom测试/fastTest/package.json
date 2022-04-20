@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@microsoft/fast-element": "^1.9.0"
+  }
+}
