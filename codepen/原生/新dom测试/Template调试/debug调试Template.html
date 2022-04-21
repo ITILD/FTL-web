@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>My-App</title>
+
+</head>
+
+<body>
+
+  <template id='debug'>
+    <style>
+      #droptarget {
+        background-color: rgb(104, 104, 104);
+        width: 400px;
+        height: 400px;
+      }
+    </style>
+
+    <button id="droptarget">
+
+    </button>
+  </template>
+
+
+  <my-app1 value='传入属性'>标签内</my-app1>
+  <script>
+    class MyAppElement extends HTMLElement {
+      constructor() {
+        super();
+        // open：影子根的元素可以从根外部的 JavaScript 访问，例如使用Element.shadowRoot：
+        const shadowRoot = this.attachShadow({mode:'open'});
+        // const shadowRoot = this.attachShadow({ mode: 'closed' });
+
+        // var templateElem = document.getElementById('debug');
+        // var content = templateElem.content.cloneNode(true);
+  
+        // shadowRoot.appendChild(content);
+
+        shadowRoot.innerHTML = this.template();
+
+      }
+      connectedCallback() {
+        console.log('my-app element is connected');
+        // this.btn = this.shadowRoot.getElementById('btn');
+        // this.ico = this.shadowRoot.getElementById('icon');
+ 
+        this.addEventListener('click',function(ev){
+            console.log('test')
+        })
+        this.action()
+      }
+      ready(){
+        console.log('my-app element is ready');
+        this.action()
+      }
+
+
+      template() {
+        return `
+        <style>
+      #droptarget {
+        background-color: rgb(104, 104, 104);
+        width: 400px;
+        height: 400px;
+      }
+    </style>
+
+    <div id="droptarget">
+
+    </div>
+    
+        `;
+      }
+
+
+      action() {
+        let dropTarget =  this.shadowRoot.getElementById('droptarget');
+
+        function handleEvent(event) {
+          let info = '',
+          
+            files,
+            i,
+            len;
+          event.preventDefault();
+
+          if (event.type == 'drop') {
+            files = event.dataTransfer.files;
+            i = 0;
+            len = files.length;
+
+            debugger
+            while (i < len) {
+              info += `${files[i].name} (${files[i].type}, ${files[i].size} bytes)<br />`;
+
+              //读取文件的内容
+              if (files[i]) {
+                var reader = new FileReader();
+                reader.readAsText(files[i]);
+                reader.onload = function () {
+                  console.log("结果")
+                  console.log(this.result)
+                };
+              }
+              i++;
+
+
+            }
+
+
+          }
+        }
+
+        dropTarget.addEventListener('dragenter', handleEvent);
+        dropTarget.addEventListener('dragover', handleEvent);
+        dropTarget.addEventListener('drop', handleEvent);
+      }
+    }
+    customElements.define('my-app1', MyAppElement);
+  </script>
+</body>
+
+</html>
