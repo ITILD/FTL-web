@@ -1,0 +1,283 @@
+<style>
+  * {
+  box-sizing: border-box;
+}
+
+.file-reader {
+  max-width: 760px;
+  display: flex;
+  flex-flow: column;
+  border: 1px solid #f0f0f0;
+  font-size: 1rem;
+  margin: 0 auto;
+}
+
+.form {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.infos, .content {
+  border-top: 1px solid #f0f0f0;
+}
+
+.infos {
+  padding: 20px;
+}
+
+.infos p {
+  margin: 0;
+}
+
+.infos ul {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.content textarea {
+  display: block;
+  width: 100%;
+  resize: vertical;
+  min-height: 200px;
+  max-height: 640px;
+  padding: 10px 20px;
+  border: none;
+  font: inherit;
+}
+
+.uploader {
+  position: relative;
+  margin: 0;
+  padding: 0;
+}
+
+.uploader input[type="file"] {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+}
+
+.btn {
+  display: inline-flex;
+  line-height: 20px;
+  padding: 6px 12px;
+  border-radius: 4px;
+  color: white;
+  background-color: #1890ff;
+  cursor: pointer;
+  border: none;
+}
+.btn:hover,
+.btn:active {
+  background-color: #40a9ff;
+}
+
+.btn:disabled {
+  opacity: .5;
+  pointer-events: none;
+}
+
+.uploader span {
+  position: relative;
+  z-index: 1;
+  padding: 10px 24px;
+}
+
+
+.form .actiions {
+  display: flex;
+  align-items: center;
+}
+
+.form .actiions > .actiion {
+  margin-left: 10px;
+}
+
+.progress {
+  display: flex;
+  margin: 20px 0;
+  align-items: center;
+}
+
+.progress span {
+  flex-shrink: 0;
+  font-size: 14px;
+  margin-left: 20px;
+}
+
+.progress progress {
+  flex: 1;
+  height: 16px;
+  -webkit-appearance: none;
+  border-width: 0;
+  position: relative;
+  color: #43a3fb;
+}
+
+progress::-webkit-progress-bar{
+  background-color: #e9ecef;
+  border-radius: 0;
+}
+
+progress::-webkit-progress-value {
+  background-image: linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent);
+  background-size: 1rem 1rem;
+}
+
+.input {
+  line-height: 20px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+}
+
+</style>
+
+<div class="file-reader">
+  <div class="form">
+    <label class="uploader">
+      <input type="file" id="file">
+      <span class="btn" role="button">选择文件</span>
+    </label>
+    <div class="actions">
+      <button class="btn" id="readFile" disabled>开始</button>
+    </div>
+  </div>
+  <div class="infos">
+    <p style="color: red;">为了防止内存溢出，文本框内仅显示当前读取的片段内容</p>
+    <ul id="infos"></ul>
+    <ul id="logs"></ul>
+  </div>  
+  <div class="content">
+    <textarea id="content" placeholder="文件内容..."></textarea>
+  </div>  
+</div>  
+
+<script>
+const $ = id => document.getElementById(id)
+const $file = $('file')
+const $content = $('content')
+const $readBtn = $('readFile')
+const $infos = $('infos')
+const $logs = $('logs')
+
+const fileReader = new FileReader()
+
+// 分片步进
+const STEP = 1024
+// 1mb
+
+// 保存当前文件域引用
+let currentFile = null
+// 用来标注是否已停止读取
+let isStopRead = true
+// 当前索引
+let startIndex = 0
+// 当前分片
+let currentSeg = 1
+// 文件总大小
+let totalSize = 0
+// 文件总片段数
+let totalSegs = 0
+// 已读字节数
+let loadedSize = 0
+
+let tempvalue = 0
+
+function readFile() {
+
+  fileReader.onloadend = function(evt) {
+    const content = evt.target.result
+    // 为了防止内存溢出，这里仅显示当前读取的内容，可在实际测试中改为内容拼接的形式
+    // $content.value += content
+    content.includes('Component')&&tempvalue++
+    $content.value = tempvalue
+    $content.focus()
+    // 递归继续读取
+    if (startIndex < totalSize) {
+      if (!isStopRead) {
+        currentSeg++
+        readFile()
+      }
+    } else {
+      $readBtn.textContent = '读取完毕'
+      $readBtn.setAttribute('disabled', 'disabled')
+    }
+  }
+
+  // 读取进度
+  fileReader.onprogress = function(evt) {
+    if (evt.lengthComputable) {
+      loadedSize += evt.loaded
+    }
+  }
+
+  const readFile = () => {
+    const end = Math.min(startIndex + STEP, totalSize)
+    const blob = currentFile.slice(startIndex, end)
+    startIndex = end
+    fileReader.readAsText(blob, 'utf-8')
+    updatelogs()
+  }
+
+  readFile()
+}
+
+function updatelogs() {
+  $logs.innerHTML = `
+    <li>已读取：${loadedSize}/${totalSize} Bytes</li>
+    <li>正在读取: ${currentSeg}/${totalSegs} 分片</li>
+  `
+}
+
+// 重新初始化全局变量
+function init() {
+  $readBtn.removeAttribute('disabled')
+  $readBtn.textContent = '开始'
+  isStopRead = true
+  currentSeg = 1
+  startIndex = 0
+  loadedSize = 0
+  totalSize = currentFile.size
+  totalSegs = Math.ceil(totalSize / STEP)
+  $logs.innerHTML = ''
+  $content.value = ''
+}
+
+// 文件域改变时触发
+$file.onchange = evt => {
+  const file = evt.target.files[0]
+  if (file.size < STEP) {
+    alert(`请上传至少${STEP}字节的文件`)
+    return
+  }
+  currentFile = file
+  $infos.innerHTML = `
+  <li>文件名称：${file.name}</li>
+  <li>文件大小：${file.size} Bytes</li>
+  `
+  evt.value = null
+  init()
+}
+
+// 开始暂停的切换
+$readBtn.addEventListener('click', () => {
+  if (loadedSize >= totalSize) {
+    alert('文件已读取完毕，请重新选择文件')
+    return
+  }
+  if (isStopRead) {
+    isStopRead = false
+    $readBtn.textContent = '暂停'
+    readFile()
+  } else {
+    isStopRead = true
+    $readBtn.textContent = '开始'
+  }
+})
+</script>
