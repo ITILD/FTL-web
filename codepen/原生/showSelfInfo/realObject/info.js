@@ -17,4 +17,6 @@ let Info = {
 }
 
 
+export{Info}
+
 

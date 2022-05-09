@@ -1,5 +1,6 @@
 self.onmessage =function(event) { //接收主线程消息
   let uint8Array = event.data;
+  debugger
   for (let index = 0; index < uint8Array.length; index++) {
     uint8Array[index]= 1
     }

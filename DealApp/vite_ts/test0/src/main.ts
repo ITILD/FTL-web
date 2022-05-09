@@ -3,7 +3,7 @@ import MyWorker from './worker/worker0?worker'
 const app = document.querySelector<HTMLDivElement>('#app')!
 
 app.innerHTML = `
-  <h1>Hello Vite!</h1>
+  <h1>testdebug!</h1>
   <a href="https://vitejs.dev/guide/features.html" target="_blank">Documentation</a>
 `
 console.time('worker0')
