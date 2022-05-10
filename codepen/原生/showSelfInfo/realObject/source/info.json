@@ -1,16 +1,16 @@
-{
-  "type": "Feature",
-  "geometry": {
-    "type": "Point",
-    "selfType":"Person",
-    "coordinates": [125.6, 10.1]
-  },
-  "properties": {
-    "name": "itild",
-    "history":[
-      {
-        "time":[20200101,20200102]
-      }
-    ]
-  }
-}
+// {
+//   "type": "Feature",
+//   "geometry": {
+//     "type": "Point",
+//     "selfType":"Person",
+//     "coordinates": [125.6, 10.1]
+//   },
+//   "properties": {
+//     "name": "itild",
+//     "history":[
+//       {
+//         "time":[20200101,20200102]
+//       }
+//     ]
+//   }
+// }
