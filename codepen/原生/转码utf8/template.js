@@ -3,6 +3,11 @@ let testFunc = (data) => {
 
   console.log('test:', str2utf8('一a'))
   // Uint8Array(4) [228, 184, 128, 97,
+
+  // 同样返回
+
+  // const textDecoder = new TextDecoder();
+  // const jsCode = textDecoder.decode(chunksAll)
 }
 
 
