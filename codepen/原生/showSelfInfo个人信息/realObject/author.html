@@ -13,12 +13,34 @@
       column-count: 3;
       column-gap: 40px;
     }
+
+    /* 超小设备 (手机, 600px 以下屏幕设备) */
+    @media only screen and (max-width: 600px) {
+      .example {
+        background: red;
+      }
+    }
+
+    /* 小设备 (平板电脑和大型手机，600 像素及以上) */
+    @media only screen and (min-width: 600px) {
+      .example {
+        background: green;
+      }
+    }
   </style>
 </head>
 
 <body>
   <!-- <button onclick="testFunc('test0')">testFunc</button> -->
   <img src="./source/UPPandFox_log32.png">
+  <canvas>
+    <!-- webgl webgpu  判断是否支持后fetch webgl   后续选择webgpu切换和babylon复杂页面   后续引入个人首页 -->
+
+  </canvas>
+
+  <div>
+
+  </div>
   <ul class="newspaper">
     <li>
       <a href="https://www.mapbox.com/blog/adaptive-projections">test</a>
