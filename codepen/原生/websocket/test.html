@@ -12,7 +12,7 @@
   function openSocket() {
     let temp = 0
 
-    const socketUrl = "ws://localhost:8081/api/pushMessage/" + $("#userId").val();
+    const socketUrl = "ws://localhost:8089/api/pushMessage/" + $("#userId").val();
     console.log(socketUrl);
     if (socket != null) {
       socket.close();

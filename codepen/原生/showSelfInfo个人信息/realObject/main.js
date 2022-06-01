@@ -7,3 +7,5 @@ async function asyncMain(params) {
 }
 asyncMain()
 console.log('test')
+
+
