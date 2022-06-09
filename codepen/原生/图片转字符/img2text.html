@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <script>
+            let img = new Image();// 储存图片信息
+            let canvas;// canvas实例
+            let ctx;// 画笔
+            let logo;// 生成的字符画
+            let flag = false;// 加载完毕标识
+            const IMAGE_SIZE = 350;// 生成画规模
+ 
+            // 加载canvas
+            window.onload = () => {
+                canvas = document.getElementById("canvas");
+                ctx = canvas.getContext("2d");
+            };
+ 
+            // 执行
+            function start() {
+                if (!flag) alert("尚未加载图片");
+                // 清空字符画
+                logo = "";
+                // 先记录比率,如果宽，那么先缩放宽,再用比率算出长,反之同理，这里是保证不超过不超过设定规模
+                let rate = img.width / img.height;
+                if (rate > 1) {
+                    img.width = IMAGE_SIZE;
+                    img.height = IMAGE_SIZE / rate;
+                } else {
+                    img.height = IMAGE_SIZE;
+                    img.width = IMAGE_SIZE / rate;
+                }
+ 
+                // 将图片绘制在canvas上
+                ctx.drawImage(img, 0, 0, img.width, img.height);
+ 
+                // 从canvas上获取像素信息
+                let imgData;
+                try {
+                    imgData = ctx.getImageData(0, 0, img.width, img.height);
+                } catch {
+                    alert("图片加载失败，请重新选择图片或刷新页面。");
+                }
+                
+                // 读取颜色及规模
+                let scale = parseInt(document.getElementById("thisSize").value);
+                let color = document.getElementById("thisColor").value !== "false";
+                // 调整字符大小，追求更高精度就在这里调小
+                let size = 8 - scale;
+                // 设置zoom缩放
+                document.querySelector("#rightDiv").style.zoom = size / 6;
+ 
+                // 生成主体，逐个读取字符
+                for (let i = 0; i < img.width; i = i + size) {
+                    for (let j = 0; j < img.height; j = j + size) {
+                        const curPoint = (i * img.width + j) * 4; // ×4是因为，1为r，2为g，3为b，4为a，四个是一组rgba值
+                        const [r, g, b] = imgData.data.slice(curPoint, curPoint + 3);
+ 
+                        const gray = r * 0.3 + g * 0.6 + b * 0.1; // 计算灰度值
+                        const thisColor = `rgb(${r},${g},${b})`; // 保存像素点rgb值
+                        color ? toText(gray, thisColor) : toText(gray); // 有颜色就转化rgb值，没颜色就不转
+                    }
+                    logo += "</br>";
+                }
+ 
+                document.getElementById("rightDiv").innerHTML = logo; // 将字符串填充到html
+                alert("渲染成功");
+            }
+ 
+            // 读取图片
+            function getImg(file) {
+                flag = false;
+                var reader = new FileReader();
+                reader.readAsDataURL(document.getElementById("upButton").files[0]);
+                reader.onload = function () {
+                    img.src = reader.result;
+                    flag = true;
+                    alert("加载完成");
+                };
+            }
+ 
+            // 根据灰度转化字符，添加颜色
+            function toText(g, thisColor) {
+                if (thisColor) logo += `<span style='color:${thisColor}'>`;
+ 
+                if (g <= 40) logo += "？";
+                else if (g > 40 && g <= 80) logo += "》";
+                else if (g > 80 && g <= 120) logo += "！";
+                else if (g > 120 && g <= 160) logo += "：";
+                else if (g > 160 && g <= 200) logo += "～";
+                else if (g > 200 && g <= 240) logo += "；";
+                else logo += "。";
+ 
+                if (thisColor) logo += "</span>";
+            }
+        </script>
+        <title>图片转字符</title>
+    </head>
+ 
+    <body>
+        <!-- 图片上传 -->
+        <form id="uf">
+            <input type="file" name="file" id="upButton" onchange="getImg()" />
+        </form>
+ 
+        <!-- 选择字符画大小 -->
+        请输入字符画清晰度：
+        <select id="thisSize">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+        </select>
+ 
+        <!-- 选择颜色 -->
+        是否使用颜色：
+        <select id="thisColor">
+            <option value="true">是</option>
+            <option value="false">否</option>
+        </select>
+ 
+        <!-- 执行按钮 -->
+        <button onclick="start()">开始执行</button>
+ 
+        <!-- 辅助canvas，设为隐藏 -->
+        <div id="leftDiv">
+            <canvas id="canvas" width="400" height="400" style="display: none;">Canvas</canvas>
+        </div>
+ 
+        <!-- 生成位置 -->
+        <div id="rightDiv" style="font-family: 'Consolas'; line-height: 0.9;"></div>
+    </body>
+</html>
