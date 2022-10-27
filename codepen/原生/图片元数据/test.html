@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta content="text/html;charset=utf-8" http-equiv="Content-Type" />
+		<link rel="stylesheet" href="//ku.shouce.ren/libs/exifjs/css/layout.css">
+		<script type="text/javascript" src="//apps.bdimg.com/libs/jquery/1.11.3/jquery.min.js">
+		</script>
+		<script src="//ku.shouce.ren/libs/exifjs/js/exif.min.js">
+		</script>
+	</head>
+	<body> 
+		<div class="main">
+			<div class="inwrap">
+				<h1>Exif.js 读取图像的元数据
+				</h1>
+				<h2>简单示例
+				</h2>
+				<div class="detail">
+					<p>Exif.js 提供了 JavaScript 读取图像的原始数据的功能扩展，例如：拍照方向、相机设备型号、拍摄时间、ISO 感光度、GPS 地理位置等数据。
+					</p>
+				</div>
+				<div class="example">
+					<div class="clearfix">
+						<div id="photos" class="photos">
+							<img width="100px" src="./1.JPG">
+							<img width="100px" src="./1.JPG">
+							<img width="100px" src="./1.JPG">
+							<img width="100px" src="./1.JPG">
+							<img width="100px" src="./1.JPG">
+							<img width="100px" src="./1.JPG">
+							<img width="100px" src="./1.JPG">
+							<img width="100px" src="./1.JPG">
+							<img width="100px" src="./1.JPG">
+							<img width="100px" src="./1.JPG">
+							<img width="100px" src="./1.JPG">
+						</div>
+						<div class="info">
+							<h3>查看 EXIF 信息
+							</h3>
+							<p>点击左边的图片，获取该图片的 EXIF 信息。
+							</p>
+							<h4>EXIF.getAllTags()
+							</h4>
+							<div id="demo-log" class="log">
+							</div>
+							<h4>EXIF.pretty()
+							</h4>
+							<textarea id="demo-val" class="input full" rows="20" readonly>
+							</textarea>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script>
+			(function(){
+				var photoBox = $('#photos');
+				var demoLog = $('#demo-log');
+				var demoVal = $('#demo-val');
+				photoBox.on('click', 'img', function(){
+					$(this).addClass('n').siblings().removeClass('n');
+					EXIF.getData(this, function(){
+						var _dataTxt = EXIF.pretty(this);
+						var _dataJson = JSON.stringify(EXIF.getAllTags(this));
+						demoLog.html(_dataJson);
+						demoVal.val(_dataTxt);
+					}
+								);
+				}
+						   );
+			}
+			)();
+		</script>
+	</body>
+</html>

@@ -1,0 +1,5 @@
+{"type":"FeatureCollection", "features": [
+{"type":"Feature","geometry":{"type":"LineString","coordinates":[[121.65046140400007,38.92961568100005],[121.65038201400006,38.92946638600005]]},"properties":{"OBJECTID":280,"datatype":"路障","mark":"","SHAPE_Leng":0.000169091008383}},
+{"type":"Feature","geometry":{"type":"LineString","coordinates":[[121.65158292500006,38.929271738000054],[121.65149848800006,38.92911837900005]]},"properties":{"OBJECTID":281,"datatype":"路障","mark":"","SHAPE_Leng":0.000175067386644}},
+{"type":"Feature","geometry":{"type":"LineString","coordinates":[[121.65069932500006,38.927687707000054],[121.65078972000006,38.927844922000055]]},"properties":{"OBJECTID":284,"datatype":"路障","mark":"","SHAPE_Leng":0.000181349971699}}
+]}
