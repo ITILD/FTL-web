@@ -54,7 +54,7 @@ function initBabylon() {
 
 function moveBabylonCamera() {
     let fov = Cesium.Math.toDegrees(_this.viewer.camera.frustum.fovy)
-    _this.camera.fov = fov / 180 * Math.PI;
+    _this.camera.fov = fov / 180 * Math.PI;//修正镜头
 
     let civm = _this.viewer.camera.inverseViewMatrix;
     let camera_matrix = BABYLON.Matrix.FromValues(
